@@ -1,11 +1,79 @@
 {
   "version": 4,
   "targets": {
-    "net10.0": {}
+    "net10.0": {
+      "Ical.Net/5.2.3": {
+        "type": "package",
+        "dependencies": {
+          "NodaTime": "3.2.2"
+        },
+        "compile": {
+          "lib/net8.0/Ical.Net.dll": {}
+        },
+        "runtime": {
+          "lib/net8.0/Ical.Net.dll": {}
+        }
+      },
+      "NodaTime/3.2.2": {
+        "type": "package",
+        "compile": {
+          "lib/net8.0/NodaTime.dll": {
+            "related": ".pdb;.xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/NodaTime.dll": {
+            "related": ".pdb;.xml"
+          }
+        }
+      }
+    }
   },
-  "libraries": {},
+  "libraries": {
+    "Ical.Net/5.2.3": {
+      "sha512": "zROvmrRPKqND0e0Bt/wSY+d8iYtL4+sP9mORyjT/ySBiIDfik4iovTjS+L9PFg+zoXfkJ5eBTHK2lX9c7lganw==",
+      "type": "package",
+      "path": "ical.net/5.2.3",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "assets/icon.png",
+        "assets/logo.png",
+        "assets/readme.md",
+        "ical.net.5.2.3.nupkg.sha512",
+        "ical.net.nuspec",
+        "lib/net6.0/Ical.Net.dll",
+        "lib/net8.0/Ical.Net.dll",
+        "lib/netstandard2.0/Ical.Net.dll",
+        "lib/netstandard2.1/Ical.Net.dll"
+      ]
+    },
+    "NodaTime/3.2.2": {
+      "sha512": "dmju5W0UYC3QP/UJM0juKAZkH0HSDMp0gH91A0+mT9M0kgyM2Jm67hUZPl/WRQLq8Lijjqmdk8kyAViWFWM7dA==",
+      "type": "package",
+      "path": "nodatime/3.2.2",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "lib/net6.0/NodaTime.dll",
+        "lib/net6.0/NodaTime.pdb",
+        "lib/net6.0/NodaTime.xml",
+        "lib/net8.0/NodaTime.dll",
+        "lib/net8.0/NodaTime.pdb",
+        "lib/net8.0/NodaTime.xml",
+        "lib/netstandard2.0/NodaTime.dll",
+        "lib/netstandard2.0/NodaTime.pdb",
+        "lib/netstandard2.0/NodaTime.xml",
+        "nodatime.3.2.2.nupkg.sha512",
+        "nodatime.nuspec"
+      ]
+    }
+  },
   "projectFileDependencyGroups": {
-    "net10.0": []
+    "net10.0": [
+      "Ical.Net >= 5.2.3"
+    ]
   },
   "packageFolders": {
     "C:\\Users\\Owner\\.nuget\\packages\\": {},
@@ -59,6 +127,12 @@
       "net10.0": {
         "framework": "net10.0",
         "targetAlias": "net10.0",
+        "dependencies": {
+          "Ical.Net": {
+            "target": "Package",
+            "version": "[5.2.3, )"
+          }
+        },
         "imports": [
           "net461",
           "net462",

@@ -1,6 +1,4 @@
-﻿using Dawi.Models;
-
-namespace Dawy.Models
+﻿namespace Dawy.Models
 {
     public class Pharmacy
     {
