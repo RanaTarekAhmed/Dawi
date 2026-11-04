@@ -2,7 +2,9 @@
   "ExpandedNodes": [
     "",
     "\\Dawy",
+    "\\Dawy\\Migrations",
     "\\Dawy\\Models"
   ],
+  "SelectedNode": "\\Dawy\\Migrations\\DawiContextModelSnapshot.cs",
   "PreviewInSolutionExplorer": false
 }
