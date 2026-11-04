@@ -1,4 +1,8 @@
-namespace Dawy
+using Dawy.Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace Dawi
+
 {
     public class Program
     {
@@ -8,6 +12,9 @@ namespace Dawy
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddDbContext<DawiContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             var app = builder.Build();
 

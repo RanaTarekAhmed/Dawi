@@ -14,7 +14,7 @@ namespace Dawy.Models
         public int Quantity { get; set; }
         public DateOnly ExpiryDate { get; set; }
         public string? ProductImageUrl { get; set; }
-        public string Status { get; set; } 
+        public string Status { get; set; }
 
         public int? PharmacyId { get; set; }
         public Pharmacy? Pharmacy { get; set; }

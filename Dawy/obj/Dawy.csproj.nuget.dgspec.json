@@ -41,7 +41,7 @@
           ]
         },
         "restoreAuditProperties": {
-          "enableAudit": "true",
+          "enableAudit": "false",
           "auditLevel": "low",
           "auditMode": "all"
         },
@@ -55,6 +55,16 @@
             "Ical.Net": {
               "target": "Package",
               "version": "[5.2.3, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[10.0.14, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[10.0.14, )"
             }
           },
           "imports": [
