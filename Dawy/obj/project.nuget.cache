@@ -1,11 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "6uXOgwkkRiA=",
+  "dgSpecHash": "HWpWHtc0Axc=",
   "success": true,
-  "projectFilePath": "D:\\Dawi\\Dawy\\Dawy.csproj",
+  "projectFilePath": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Dawy.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Owner\\.nuget\\packages\\ical.net\\5.2.3\\ical.net.5.2.3.nupkg.sha512",
-    "C:\\Users\\Owner\\.nuget\\packages\\nodatime\\3.2.2\\nodatime.3.2.2.nupkg.sha512"
+    "C:\\Users\\em\\.nuget\\packages\\ical.net\\5.2.3\\ical.net.5.2.3.nupkg.sha512",
+    "C:\\Users\\em\\.nuget\\packages\\nodatime\\3.2.2\\nodatime.3.2.2.nupkg.sha512"
   ],
   "logs": []
 }
