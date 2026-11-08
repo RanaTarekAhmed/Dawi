@@ -17,6 +17,11 @@ namespace Dawy.Models
         public string Status { get; set; }
 
         public int? PharmacyId { get; set; }
+        public bool IsControlled { get; set; }
+        public bool RequiresColdChain { get; set; }
+        public DateTime? InspectedAt { get; set; }
+        public string? InspectionNotes { get; set; }
+        public string? RejectionReason { get; set; }
         public Pharmacy? Pharmacy { get; set; }
 
         public DateTime CreatedAt { get; set; }

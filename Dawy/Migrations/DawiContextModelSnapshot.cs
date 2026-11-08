@@ -35,6 +35,10 @@ namespace Dawy.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
 
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsVerified")
                         .HasColumnType("bit");
 
@@ -80,6 +84,15 @@ namespace Dawy.Migrations
                     b.Property<DateOnly>("ExpiryDate")
                         .HasColumnType("date");
 
+                    b.Property<DateTime?>("InspectedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("InspectionNotes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsControlled")
+                        .HasColumnType("bit");
+
                     b.Property<int?>("PharmacyId")
                         .HasColumnType("int");
 
@@ -94,6 +107,12 @@ namespace Dawy.Migrations
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
+
+                    b.Property<string>("RejectionReason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("RequiresColdChain")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -120,6 +139,16 @@ namespace Dawy.Migrations
                     b.Property<int>("BeneficiaryId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("CollectionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("FeeAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("bit");
+
                     b.Property<string>("PrescriptionImageUrl")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -127,8 +156,14 @@ namespace Dawy.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
+                    b.Property<string>("RejectionReason")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("RequestDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("RequestedQuantity")
+                        .HasColumnType("int");
 
                     b.HasKey("RequestId");
 
@@ -208,7 +243,7 @@ namespace Dawy.Migrations
                         .IsRequired();
 
                     b.HasOne("Dawy.Models.Pharmacy", "Pharmacy")
-                        .WithMany()
+                        .WithMany("Products")
                         .HasForeignKey("PharmacyId")
                         .OnDelete(DeleteBehavior.Restrict);
 
@@ -234,6 +269,11 @@ namespace Dawy.Migrations
                     b.Navigation("Beneficiary");
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Dawy.Models.Pharmacy", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("Dawy.Models.Product", b =>

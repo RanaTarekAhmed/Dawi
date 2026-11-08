@@ -40,6 +40,7 @@ namespace Dawy.Migrations
                     Address = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
                     PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     IsVerified = table.Column<bool>(type: "bit", nullable: false),
+                    City = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PharmacistId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -67,6 +68,11 @@ namespace Dawy.Migrations
                     ProductImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     Status = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     PharmacyId = table.Column<int>(type: "int", nullable: true),
+                    IsControlled = table.Column<bool>(type: "bit", nullable: false),
+                    RequiresColdChain = table.Column<bool>(type: "bit", nullable: false),
+                    InspectedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    InspectionNotes = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RejectionReason = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -94,6 +100,11 @@ namespace Dawy.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     BeneficiaryId = table.Column<int>(type: "int", nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: false),
+                    RequestedQuantity = table.Column<int>(type: "int", nullable: false),
+                    CollectionDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    FeeAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    IsPaid = table.Column<bool>(type: "bit", nullable: false),
+                    RejectionReason = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PrescriptionImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     RequestDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },

@@ -461,10 +461,10 @@ D:\Dawi\Dawy\obj\Debug\net10.0\staticwebassets.build.json.cache
 D:\Dawi\Dawy\obj\Debug\net10.0\staticwebassets.development.json
 D:\Dawi\Dawy\obj\Debug\net10.0\staticwebassets.build.endpoints.json
 D:\Dawi\Dawy\obj\Debug\net10.0\swae.build.ex.cache
-D:\Dawi\Dawy\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
 D:\Dawi\Dawy\obj\Debug\net10.0\Dawy.csproj.Up2Date
 D:\Dawi\Dawy\obj\Debug\net10.0\Dawy.dll
 D:\Dawi\Dawy\obj\Debug\net10.0\refint\Dawy.dll
 D:\Dawi\Dawy\obj\Debug\net10.0\Dawy.pdb
 D:\Dawi\Dawy\obj\Debug\net10.0\Dawy.genruntimeconfig.cache
 D:\Dawi\Dawy\obj\Debug\net10.0\ref\Dawy.dll
+D:\Dawi\Dawy\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt

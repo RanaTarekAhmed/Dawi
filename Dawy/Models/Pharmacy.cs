@@ -7,9 +7,12 @@
         public string Address { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
         public bool IsVerified { get; set; }
+        public string City { get; set; } = string.Empty;
 
         public int? PharmacistId { get; set; }
         public User? Pharmacist { get; set; }
+
+        public ICollection<Product> Products { get; set; } = new List<Product>();
 
     }
 }

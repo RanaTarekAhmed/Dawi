@@ -66,10 +66,9 @@ namespace Dawy.Data
                       .WithMany(u => u.DonatedProducts)
                       .HasForeignKey(p => p.DonorId)
                       .OnDelete(DeleteBehavior.Restrict);
-
                 // الصيدلية (اختياري)
                 entity.HasOne(p => p.Pharmacy)
-                      .WithMany()
+                      .WithMany(ph => ph.Products)
                       .HasForeignKey(p => p.PharmacyId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
@@ -80,7 +79,7 @@ namespace Dawy.Data
                 entity.HasKey(r => r.RequestId);
 
                 entity.Property(r => r.PrescriptionImageUrl).HasMaxLength(500);
-
+                entity.Property(r => r.FeeAmount).HasPrecision(18, 2);
                 // المستفيد -> طلباته
                 entity.HasOne(r => r.Beneficiary)
                       .WithMany(u => u.Requests)
