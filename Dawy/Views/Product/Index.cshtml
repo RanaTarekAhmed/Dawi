@@ -1,0 +1,8 @@
+﻿@model List<Dawy.Models.Product>
+
+<h2>المنتجات</h2>
+
+@foreach (var p in Model)
+{
+    <p>@p.ProductName - @p.Quantity</p>
+}
