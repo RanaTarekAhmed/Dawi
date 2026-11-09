@@ -7,8 +7,48 @@
       "RelativeMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|solutionrelative:views\\product\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|c:\\users\\em\\onedrive\\desktop\\dawi\\dawy\\controllers\\productcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|solutionrelative:controllers\\productcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|c:\\users\\em\\onedrive\\desktop\\dawi\\dawy\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|solutionrelative:controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|c:\\users\\em\\onedrive\\desktop\\dawi\\dawy\\models\\pharmacy.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|solutionrelative:models\\pharmacy.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|c:\\users\\em\\onedrive\\desktop\\dawi\\dawy\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|solutionrelative:models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|c:\\users\\em\\onedrive\\desktop\\dawi\\dawy\\migrations\\dawicontextmodelsnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|solutionrelative:migrations\\dawicontextmodelsnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|c:\\users\\em\\onedrive\\desktop\\dawi\\dawy\\migrations\\20261104211437_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|solutionrelative:migrations\\20261104211437_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|c:\\users\\em\\onedrive\\desktop\\dawi\\dawy\\controllers\\profilecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|solutionrelative:controllers\\profilecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|c:\\users\\em\\onedrive\\desktop\\dawi\\dawy\\models\\rolers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|solutionrelative:models\\rolers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|c:\\users\\em\\onedrive\\desktop\\dawi\\dawy\\viewmodels\\productviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|solutionrelative:viewmodels\\productviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|c:\\users\\em\\onedrive\\desktop\\dawi\\dawy\\models\\productstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|solutionrelative:models\\productstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|c:\\users\\em\\onedrive\\desktop\\dawi\\dawy\\dawy.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|solutionrelative:dawy.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|c:\\users\\em\\onedrive\\desktop\\dawi\\dawy\\models\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -19,16 +59,8 @@
       "RelativeMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|solutionrelative:models\\request.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|c:\\users\\em\\onedrive\\desktop\\dawi\\dawy\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|solutionrelative:models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|c:\\users\\em\\onedrive\\desktop\\dawi\\dawy\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|c:\\users\\em\\onedrive\\desktop\\dawi\\dawy\\migrations\\dawicontextmodelsnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|solutionrelative:migrations\\dawicontextmodelsnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|c:\\users\\em\\onedrive\\desktop\\dawi\\dawy\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -37,14 +69,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|c:\\users\\em\\onedrive\\desktop\\dawi\\dawy\\data\\dawicontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|solutionrelative:data\\dawicontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|c:\\users\\em\\onedrive\\desktop\\dawi\\dawy\\dawy.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|solutionrelative:dawy.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|c:\\users\\em\\onedrive\\desktop\\dawi\\dawy\\migrations\\20261104211437_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9F7B787A-3D44-BFF1-476F-09F173F287CE}|Dawy.csproj|solutionrelative:migrations\\20261104211437_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -54,7 +78,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -62,12 +86,84 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AccountController.cs",
+              "DocumentMoniker": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Controllers\\AccountController.cs",
+              "RelativeDocumentMoniker": "Controllers\\AccountController.cs",
+              "ToolTip": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Controllers\\AccountController.cs",
+              "RelativeToolTip": "Controllers\\AccountController.cs",
+              "ViewState": "AgIAABcAAAAAAAAAAAAgwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-08T23:29:39.67Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ProfileController.cs",
+              "DocumentMoniker": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Controllers\\ProfileController.cs",
+              "RelativeDocumentMoniker": "Controllers\\ProfileController.cs",
+              "ToolTip": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Controllers\\ProfileController.cs",
+              "RelativeToolTip": "Controllers\\ProfileController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-08T23:15:23.825Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Rolers.cs",
+              "DocumentMoniker": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Models\\Rolers.cs",
+              "RelativeDocumentMoniker": "Models\\Rolers.cs",
+              "ToolTip": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Models\\Rolers.cs",
+              "RelativeToolTip": "Models\\Rolers.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-08T23:13:38.885Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ProductController.cs",
+              "DocumentMoniker": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Controllers\\ProductController.cs",
+              "RelativeDocumentMoniker": "Controllers\\ProductController.cs",
+              "ToolTip": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Controllers\\ProductController.cs",
+              "RelativeToolTip": "Controllers\\ProductController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAA1AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-08T23:08:50.199Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "ProductViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\ViewModels\\ProductViewModel.cs",
+              "RelativeDocumentMoniker": "ViewModels\\ProductViewModel.cs",
+              "ToolTip": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\ViewModels\\ProductViewModel.cs",
+              "RelativeToolTip": "ViewModels\\ProductViewModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAA8AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-08T22:52:02.813Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "ProductStatus.cs",
+              "DocumentMoniker": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Models\\ProductStatus.cs",
+              "RelativeDocumentMoniker": "Models\\ProductStatus.cs",
+              "ToolTip": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Models\\ProductStatus.cs",
+              "RelativeToolTip": "Models\\ProductStatus.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-08T22:45:37.418Z"
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
               "Title": "Index.cshtml",
               "DocumentMoniker": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Views\\Product\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\Product\\Index.cshtml",
-              "ToolTip": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Views\\Product\\Index.cshtml*",
-              "RelativeToolTip": "Views\\Product\\Index.cshtml*",
+              "ToolTip": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Views\\Product\\Index.cshtml",
+              "RelativeToolTip": "Views\\Product\\Index.cshtml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2026-11-08T22:04:49.631Z",
@@ -75,7 +171,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 5,
               "Title": "DawiContextModelSnapshot.cs",
               "DocumentMoniker": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Migrations\\DawiContextModelSnapshot.cs",
               "RelativeDocumentMoniker": "Migrations\\DawiContextModelSnapshot.cs",
@@ -87,7 +183,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 6,
               "Title": "20261104211437_InitialCreate.cs",
               "DocumentMoniker": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Migrations\\20261104211437_InitialCreate.cs",
               "RelativeDocumentMoniker": "Migrations\\20261104211437_InitialCreate.cs",
@@ -99,20 +195,19 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "Pharmacy.cs",
               "DocumentMoniker": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Models\\Pharmacy.cs",
               "RelativeDocumentMoniker": "Models\\Pharmacy.cs",
               "ToolTip": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Models\\Pharmacy.cs",
               "RelativeToolTip": "Models\\Pharmacy.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAA4AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-04T20:58:52.833Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-11-04T20:58:52.833Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 12,
               "Title": "Product.cs",
               "DocumentMoniker": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Models\\Product.cs",
               "RelativeDocumentMoniker": "Models\\Product.cs",
@@ -120,12 +215,11 @@
               "RelativeToolTip": "Models\\Product.cs",
               "ViewState": "AgIAAAgAAAAAAAAAAAA3wBoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-04T20:58:39.644Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-11-04T20:58:39.644Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 13,
               "Title": "Request.cs",
               "DocumentMoniker": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Models\\Request.cs",
               "RelativeDocumentMoniker": "Models\\Request.cs",
@@ -133,8 +227,7 @@
               "RelativeToolTip": "Models\\Request.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-04T20:58:16.52Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-11-04T20:58:16.52Z"
             },
             {
               "$type": "Document",
@@ -144,14 +237,13 @@
               "RelativeDocumentMoniker": "Models\\User.cs",
               "ToolTip": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Models\\User.cs",
               "RelativeToolTip": "Models\\User.cs",
-              "ViewState": "AgIAABIAAAAAAAAAAAAAABMAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-04T20:57:21.354Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-11-04T20:57:21.354Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 16,
               "Title": "DawiContext.cs",
               "DocumentMoniker": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Data\\DawiContext.cs",
               "RelativeDocumentMoniker": "Data\\DawiContext.cs",
@@ -163,7 +255,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 11,
               "Title": "Dawy.csproj",
               "DocumentMoniker": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Dawy.csproj",
               "RelativeDocumentMoniker": "Dawy.csproj",
@@ -175,7 +267,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 15,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
@@ -187,7 +279,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 14,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\em\\OneDrive\\Desktop\\Dawi\\Dawy\\appsettings.json",
               "RelativeDocumentMoniker": "appsettings.json",
