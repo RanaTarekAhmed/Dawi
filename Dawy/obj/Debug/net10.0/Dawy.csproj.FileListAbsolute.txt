@@ -467,3 +467,4 @@ C:\Users\PC\Documents\GitHub\Dawi\Dawy\obj\Debug\net10.0\swae.build.ex.cache
 C:\Users\PC\Documents\GitHub\Dawi\Dawy\obj\Debug\net10.0\Dawy.csproj.Up2Date
 C:\Users\PC\Documents\GitHub\Dawi\Dawy\obj\Debug\net10.0\Dawy.genruntimeconfig.cache
 C:\Users\PC\Documents\GitHub\Dawi\Dawy\obj\Debug\net10.0\ref\Dawy.dll
+C:\Users\PC\Documents\GitHub\Dawi\Dawy\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
