@@ -14,5 +14,10 @@ namespace Dawy.Models
         public string? PrescriptionImageUrl { get; set; }
 
         public DateTime RequestDate { get; set; }
+        public int RequestedQuantity { get; set; }
+        public DateTime? CollectionDate { get; set; }
+        public decimal FeeAmount { get; set; }
+        public bool IsPaid { get; set; }
+        public string? RejectionReason { get; set; }
     }
 }

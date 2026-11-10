@@ -14,6 +14,8 @@ namespace Dawy.Data
         public DbSet<Product> Products { get; set; }
         public DbSet<Request> Requests { get; set; }
         public DbSet<Pharmacy> Pharmacies { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<AuditLog> AuditLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -30,9 +32,33 @@ namespace Dawy.Data
                 entity.Property(u => u.PhoneNumber).HasMaxLength(20);
                 entity.Property(u => u.Role).IsRequired().HasMaxLength(30);
                 entity.Property(u => u.NationalId).IsRequired().HasMaxLength(14);
+                entity.Property(u => u.IsActive).IsRequired();
 
                 entity.HasIndex(u => u.Email).IsUnique();
                 entity.HasIndex(u => u.NationalId).IsUnique();
+            });
+
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.HasKey(n => n.NotificationId);
+                entity.Property(n => n.Title).IsRequired().HasMaxLength(150);
+                entity.Property(n => n.Message).IsRequired().HasMaxLength(1000);
+                entity.Property(n => n.Link).HasMaxLength(500);
+                entity.HasOne(n => n.User).WithMany(u => u.Notifications)
+                    .HasForeignKey(n => n.UserId).OnDelete(DeleteBehavior.Cascade);
+                entity.HasIndex(n => new { n.UserId, n.IsRead, n.CreatedAt });
+            });
+
+            modelBuilder.Entity<AuditLog>(entity =>
+            {
+                entity.HasKey(a => a.AuditLogId);
+                entity.Property(a => a.Action).IsRequired().HasMaxLength(100);
+                entity.Property(a => a.EntityName).IsRequired().HasMaxLength(100);
+                entity.Property(a => a.EntityId).HasMaxLength(100);
+                entity.Property(a => a.Details).HasMaxLength(2000);
+                entity.HasOne(a => a.User).WithMany(u => u.AuditLogs)
+                    .HasForeignKey(a => a.UserId).OnDelete(DeleteBehavior.SetNull);
+                entity.HasIndex(a => a.CreatedAt);
             });
 
             // ---------- Pharmacy ----------

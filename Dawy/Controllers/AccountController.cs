@@ -131,6 +131,12 @@ namespace Dawy.Controllers
                 return BadRequest(ModelState);
             }
 
+            if (!user.IsActive)
+            {
+                ModelState.AddModelError(string.Empty, "This account is inactive.");
+                return BadRequest(ModelState);
+            }
+
             var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
 
             if (result == PasswordVerificationResult.Failed)

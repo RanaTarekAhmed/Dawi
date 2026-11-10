@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Dawy")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+856868aebb27b7c33fe9963a991f222147449bd4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+69ebd58d8a8457755b30baa35965f10189827224")]
 [assembly: System.Reflection.AssemblyProductAttribute("Dawy")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Dawy")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
