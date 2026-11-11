@@ -1,50 +1,172 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Dawy</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - داوي</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Dawy.styles.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --dawy-teal: #0f766e;
+            --dawy-teal-dark: #0b4f4a;
+            --dawy-teal-light: #e6f4f1;
+            --dawy-sidebar: #11423f;
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .text-teal { color: var(--dawy-teal) !important; }
+        .bg-teal { background-color: var(--dawy-teal) !important; }
+        .bg-teal-light { background-color: var(--dawy-teal-light) !important; }
+        
+        .btn-teal {
+            background-color: var(--dawy-teal);
+            color: #fff;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            transition: 0.2s;
+        }
+        .btn-teal:hover {
+            background-color: var(--dawy-teal-dark);
+            color: #fff;
+        }
+        .btn-outline-teal {
+            border: 1.5px solid var(--dawy-teal);
+            color: var(--dawy-teal);
+            border-radius: 8px;
+            font-weight: 600;
+            background: transparent;
+        }
+        .btn-outline-teal:hover {
+            background-color: var(--dawy-teal);
+            color: #fff;
+        }
+        .dawy-navbar {
+            background: #ffffff;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            padding: 12px 0;
+        }
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .brand-heart {
+            width: 38px;
+            height: 38px;
+            background-color: var(--dawy-teal);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        .dawy-card {
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #eef2f6;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+        .dawy-sidebar {
+            background-color: var(--dawy-sidebar);
+            min-height: calc(100vh - 76px);
+            border-radius: 16px;
+            color: #fff;
+            padding: 24px 16px;
+        }
+        .dawy-sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 6px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .dawy-sidebar .nav-link:hover, .dawy-sidebar .nav-link.active {
+            background-color: rgba(255,255,255,0.15);
+            color: #fff;
+        }
+        .badge-approved { background-color: #d1fae5; color: #065f46; padding: 6px 14px; border-radius: 20px; font-weight: 600; }
+        .badge-pending { background-color: #fef3c7; color: #92400e; padding: 6px 14px; border-radius: 20px; font-weight: 600; }
+        .badge-rejected { background-color: #fee2e2; color: #991b1b; padding: 6px 14px; border-radius: 20px; font-weight: 600; }
+    </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Dawy</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+        <nav class="navbar navbar-expand-lg dawy-navbar">
+            <div class="container">
+                <!-- اللوجو على اليمين زي التصميم -->
+                <a class="brand-logo" asp-controller="Home" asp-action="Index">
+                    <div class="brand-heart"><i class="bi bi-heart-pulse-fill"></i></div>
+                    <div>
+                        <div class="fw-bold fs-4 text-teal lh-1">داوي</div>
+                        <small class="text-muted" style="font-size: 0.7rem;">معاً .. لصحة أفضل</small>
+                    </div>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#dawyNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+
+                <div class="collapse navbar-collapse justify-content-between" id="dawyNav">
+                    <ul class="navbar-nav mx-auto gap-3">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link fw-bold text-teal" asp-controller="Home" asp-action="Index">الرئيسية</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link fw-semibold text-dark" asp-controller="Category" asp-action="Index">المنتجات</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold text-dark" asp-controller="Donation" asp-action="Create">إضافة تبرع</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold text-dark" asp-controller="Donation" asp-action="Index">لوحة المتبرع</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold text-dark" asp-controller="Inspection" asp-action="Index">التبرعات الواردة للمراجعة</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold text-dark" asp-controller="Pharmacy" asp-action="Index">الصيدليات</a>
                         </li>
                     </ul>
+
+                    <div class="d-flex align-items-center gap-2">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <span class="fw-bold text-teal me-2"><i class="bi bi-person-circle"></i> @User.Identity.Name</span>
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-danger btn-sm">تسجيل الخروج</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <a asp-controller="Donation" asp-action="Index" class="btn btn-outline-teal btn-sm px-3">تسجيل الدخول</a>
+                            <a asp-controller="Donation" asp-action="Create" class="btn btn-teal btn-sm px-3">إنشاء حساب</a>
+                        }
+                    </div>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+
+    <div class="container my-4">
+        <main role="main">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - Dawy - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

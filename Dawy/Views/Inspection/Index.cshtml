@@ -1,100 +1,68 @@
 ﻿@model IEnumerable<Dawy.Models.Product>
 @{
-    ViewData["Title"] = "فحص ومراجعة التبرعات الدوائية";
-    var currentStatus = ViewBag.CurrentStatus as string;
+    ViewData["Title"] = "التبرعات الواردة للمراجعة";
 }
 
-<div class="container py-4" dir="rtl">
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-    }
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-    }
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold text-primary mb-1">فحص التبرعات الواردة للصيدلية</h2>
-            <p class="text-muted mb-0">مراجعة صلاحية وجودة الأدوية المتبرع بها قبل إضافتها للكتالوج العام</p>
+<div class="row g-4">
+    <!-- القائمة الجانبية للصيدلي -->
+    <div class="col-lg-3">
+        <div class="dawy-sidebar">
+            <div class="d-flex align-items-center gap-2 mb-4 px-2">
+                <i class="bi bi-heart-pulse-fill fs-3"></i>
+                <div>
+                    <div class="fw-bold fs-5 lh-1">داوي</div>
+                    <small class="text-white-50" style="font-size: 0.7rem;">بوابة الصيدلي</small>
+                </div>
+            </div>
+            <nav class="nav flex-column">
+                <a class="nav-link" asp-controller="Pharmacy" asp-action="MyPharmacies"><i class="bi bi-house-door"></i> الرئيسية</a>
+                <a class="nav-link active" asp-controller="Inspection" asp-action="Index"><i class="bi bi-clipboard2-check"></i> التبرعات الواردة</a>
+                <a class="nav-link" asp-controller="Category" asp-action="Index"><i class="bi bi-capsule"></i> المنتجات</a>
+                <a class="nav-link" asp-controller="Collection" asp-action="Index"><i class="bi bi-bag-check"></i> طلبات المستفيدين</a>
+            </nav>
         </div>
     </div>
 
-    <!-- فلتر الحالات -->
-    <div class="mb-3 d-flex gap-2">
-        <a asp-action="Index" asp-route-status="@Dawy.Models.ProductStatus.Pending"
-           class="btn btn-sm @(currentStatus == Dawy.Models.ProductStatus.Pending ? "btn-warning" : "btn-outline-warning")">
-            بانتظار الفحص (@ViewBag.PendingCount)
-        </a>
-        <a asp-action="Index" asp-route-status="@Dawy.Models.ProductStatus.Approved"
-           class="btn btn-sm @(currentStatus == Dawy.Models.ProductStatus.Approved ? "btn-success" : "btn-outline-success")">
-            تم قبولها (@ViewBag.ApprovedCount)
-        </a>
-        <a asp-action="Index" asp-route-status="@Dawy.Models.ProductStatus.Rejected"
-           class="btn btn-sm @(currentStatus == Dawy.Models.ProductStatus.Rejected ? "btn-danger" : "btn-outline-danger")">
-            مرفوضة (@ViewBag.RejectedCount)
-        </a>
-        <a asp-action="Index" asp-route-status="All"
-           class="btn btn-sm @(currentStatus == "All" ? "btn-dark" : "btn-outline-dark")">
-            الكل
-        </a>
-    </div>
+    <!-- جدول التبرعات الواردة للمراجعة -->
+    <div class="col-lg-9">
+        <div class="dawy-card p-4">
+            <h4 class="fw-bold mb-4">التبرعات الواردة للمراجعة</h4>
 
-    <div class="card shadow-sm border-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>الدواء</th>
-                        <th>الفئة</th>
-                        <th>الكمية</th>
-                        <th>تاريخ الصلاحية</th>
-                        <th>المتبرع</th>
-                        <th>الصيدلية</th>
-                        <th>الحالة</th>
-                        <th>إجراء الفحص</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (!Model.Any())
-                    {
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="text-muted">
                         <tr>
-                            <td colspan="8" class="text-center py-4 text-muted">لا توجد تبرعات في هذه القائمة حالياً.</td>
+                            <th>المنتج</th>
+                            <th>الكمية</th>
+                            <th>تاريخ الاستلام</th>
+                            <th class="text-center">الإجراءات</th>
                         </tr>
-                    }
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td class="fw-bold">@item.ProductName</td>
-                            <td>@item.Category</td>
-                            <td>@item.Quantity</td>
-                            <td>@item.ExpiryDate.ToString("yyyy-MM-dd")</td>
-                            <td>@(item.Donor?.FullName ?? "-")</td>
-                            <td>@(item.Pharmacy?.PharmacyName ?? "-")</td>
-                            <td>
-                                @if (item.Status == Dawy.Models.ProductStatus.Pending)
-                                {
-                                    <span class="badge bg-warning text-dark">بانتظار الفحص</span>
-                                }
-                                else if (item.Status == Dawy.Models.ProductStatus.Approved)
-                                {
-                                    <span class="badge bg-success">معتمد</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-danger">مرفوض</span>
-                                }
-                            </td>
-                            <td>
-                                <a asp-action="Details" asp-route-id="@item.ProductId" class="btn btn-sm btn-primary">
-                                    معاينة وفحص
-                                </a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold">@item.ProductName</td>
+                                <td>@item.Quantity عبوات</td>
+                                <td class="text-muted">@item.CreatedAt.ToString("yyyy/MM/dd")</td>
+                                <td class="text-center">
+                                    <div class="d-inline-flex gap-2">
+                                        <form asp-action="Approve" asp-route-id="@item.ProductId" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-teal btn-sm px-3">قبول</button>
+                                        </form>
+                                        <form asp-action="Reject" asp-route-id="@item.ProductId" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="reason" value="غير مطابق لشروط التخزين" />
+                                            <button type="submit" class="btn btn-sm px-3" style="background-color: #fee2e2; color: #991b1b; font-weight:600;">رفض</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

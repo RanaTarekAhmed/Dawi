@@ -1,134 +1,139 @@
 ﻿@model IEnumerable<Dawy.Models.Product>
 @{
-    ViewData["Title"] = "لوحة تبرعاتي";
-    var currentStatus = ViewBag.CurrentStatus as string;
+    ViewData["Title"] = "لوحة المتبرع";
 }
 
-<div class="container py-4" dir="rtl">
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["ErrorMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold text-primary mb-1">لوحة تبرعاتي</h2>
-            <p class="text-muted mb-0">تابع حالة الأدوية التي تبرعت بها ومراجعتها في الصيدليات</p>
-        </div>
-        @if (User.IsInRole(Dawy.Models.Roles.Donor))
-        {
-            <a asp-action="Create" class="btn btn-success px-4">+ إضافة تبرع جديد</a>
-        }
-    </div>
-
-    <!-- كروت الإحصائيات -->
-    <div class="row g-3 mb-4 text-center">
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm p-3">
-                <h6 class="text-muted">إجمالي التبرعات</h6>
-                <h3 class="fw-bold text-primary mb-0">@ViewBag.TotalDonations</h3>
+<div class="row g-4">
+    <!-- القائمة الجانبية الغامقة زي التصميم -->
+    <div class="col-lg-3">
+        <div class="dawy-sidebar d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-4 px-2">
+                    <i class="bi bi-heart-pulse-fill fs-3"></i>
+                    <div>
+                        <div class="fw-bold fs-5 lh-1">داوي</div>
+                        <small class="text-white-50" style="font-size: 0.7rem;">معاً .. لصحة أفضل</small>
+                    </div>
+                </div>
+                <nav class="nav flex-column">
+                    <a class="nav-link active" asp-controller="Donation" asp-action="Index"><i class="bi bi-house-door"></i> الرئيسية</a>
+                    <a class="nav-link" asp-controller="Donation" asp-action="Create"><i class="bi bi-box2-heart"></i> التبرعات</a>
+                    <a class="nav-link" asp-controller="Category" asp-action="Index"><i class="bi bi-Grid"></i> المنتجات</a>
+                    <a class="nav-link" asp-controller="Pharmacy" asp-action="Index"><i class="bi bi-hospital"></i> الصيدليات</a>
+                </nav>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm p-3">
-                <h6 class="text-muted">مقبول ومعتمد</h6>
-                <h3 class="fw-bold text-success mb-0">@ViewBag.ApprovedCount</h3>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm p-3">
-                <h6 class="text-muted">قيد المراجعة</h6>
-                <h3 class="fw-bold text-warning mb-0">@ViewBag.PendingCount</h3>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm p-3">
-                <h6 class="text-muted">مرفوض</h6>
-                <h3 class="fw-bold text-danger mb-0">@ViewBag.RejectedCount</h3>
+            <div class="pt-4 border-top border-secondary">
+                <a class="nav-link text-white-50" asp-controller="Home" asp-action="Index"><i class="bi bi-box-arrow-right"></i> عودة للرئيسية</a>
             </div>
         </div>
     </div>
 
-    <!-- أزرار فلترة الحالة -->
-    <div class="mb-3 d-flex gap-2">
-        <a asp-action="Index" class="btn btn-sm @(string.IsNullOrEmpty(currentStatus) ? "btn-dark" : "btn-outline-dark")">الكل</a>
-        <a asp-action="Index" asp-route-status="@Dawy.Models.ProductStatus.Pending" class="btn btn-sm @(currentStatus == Dawy.Models.ProductStatus.Pending ? "btn-warning" : "btn-outline-warning")">قيد المراجعة</a>
-        <a asp-action="Index" asp-route-status="@Dawy.Models.ProductStatus.Approved" class="btn btn-sm @(currentStatus == Dawy.Models.ProductStatus.Approved ? "btn-success" : "btn-outline-success")">مقبول</a>
-        <a asp-action="Index" asp-route-status="@Dawy.Models.ProductStatus.Rejected" class="btn btn-sm @(currentStatus == Dawy.Models.ProductStatus.Rejected ? "btn-danger" : "btn-outline-danger")">مرفوض</a>
-    </div>
+    <!-- محتوى لوحة المتبرع -->
+    <div class="col-lg-9">
+        <!-- البانر الترحيبي -->
+        <div class="dawy-card p-4 mb-4 d-flex justify-content-between align-items-center" style="background: linear-gradient(90deg, #e6f4f1 0%, #ffffff 100%);">
+            <div>
+                <h4 class="fw-bold mb-1">مرحباً بك، @(User.Identity?.Name ?? "أحمد محمد")</h4>
+                <p class="text-muted mb-0">معاً نساهم في توفير الأدوية لمن يحتاجها</p>
+            </div>
+            <a asp-action="Create" class="btn btn-teal px-4 py-2">+ إضافة تبرع جديد</a>
+        </div>
 
-    <!-- جدول التبرعات -->
-    <div class="card shadow-sm border-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>اسم الدواء</th>
-                        <th>الفئة</th>
-                        <th>الكمية</th>
-                        <th>تاريخ الصلاحية</th>
-                        <th>الصيدلية المستلمة</th>
-                        <th>الحالة</th>
-                        <th>تاريخ الإضافة</th>
-                        <th>إجراءات</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (!Model.Any())
-                    {
-                        <tr>
-                            <td colspan="8" class="text-center py-4 text-muted">لا توجد تبرعات مسجلة حتى الآن.</td>
-                        </tr>
-                    }
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td class="fw-bold">@item.ProductName</td>
-                            <td>@item.Category</td>
-                            <td>@item.Quantity</td>
-                            <td>@item.ExpiryDate.ToString("yyyy-MM-dd")</td>
-                            <td>@(item.Pharmacy?.PharmacyName ?? "غير محدد")</td>
-                            <td>
-                                @if (item.Status == Dawy.Models.ProductStatus.Approved)
+        <!-- الكروت الأربعة للإحصائيات -->
+        <div class="row row-cols-2 row-cols-md-4 g-3 mb-4">
+            <div class="col">
+                <div class="dawy-card p-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small">إجمالي تبرعاتك</div>
+                        <h3 class="fw-bold mb-0 mt-1">@ViewBag.TotalDonations</h3>
+                    </div>
+                    <div class="bg-teal-light text-teal p-2 px-3 rounded-3"><i class="bi bi-person-heart fs-4"></i></div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="dawy-card p-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small">الطلبات الحالية</div>
+                        <h3 class="fw-bold mb-0 mt-1">@ViewBag.PendingCount</h3>
+                    </div>
+                    <div class="bg-teal-light text-teal p-2 px-3 rounded-3"><i class="bi bi-hourglass-split fs-4"></i></div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="dawy-card p-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small">المنتجات المتاحة</div>
+                        <h3 class="fw-bold mb-0 mt-1">@ViewBag.ApprovedCount</h3>
+                    </div>
+                    <div class="bg-teal-light text-teal p-2 px-3 rounded-3"><i class="bi bi-capsule fs-4"></i></div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="dawy-card p-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small">الطلبات المكتملة</div>
+                        <h3 class="fw-bold mb-0 mt-1">@ViewBag.ApprovedCount</h3>
+                    </div>
+                    <div class="bg-teal-light text-teal p-2 px-3 rounded-3"><i class="bi bi-check2-circle fs-4"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- جدول أحدث التبرعات + كارت تبرعك حياة -->
+        <div class="row g-4">
+            <div class="col-md-8">
+                <div class="dawy-card p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">أحدث التبرعات</h5>
+                        <a asp-action="Index" class="text-teal text-decoration-none small fw-bold">عرض الكل</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead class="text-muted small">
+                                <tr>
+                                    <th>المنتج</th>
+                                    <th>الكمية</th>
+                                    <th>الحالة</th>
+                                    <th>التاريخ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
                                 {
-                                    <span class="badge bg-success">مقبول</span>
+                                    <tr>
+                                        <td class="fw-bold">@item.ProductName</td>
+                                        <td>@item.Quantity عبوة</td>
+                                        <td>
+                                            @if (item.Status == "Approved" || item.Status == "مقبول")
+                                            {
+                                                <span class="badge-approved">مقبول</span>
+                                            }
+                                            else if (item.Status == "Rejected" || item.Status == "مرفوض")
+                                            {
+                                                <span class="badge-rejected">مرفوض</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge-pending">قيد المراجعة</span>
+                                            }
+                                        </td>
+                                        <td class="text-muted small">@item.CreatedAt.ToString("yyyy/MM/dd")</td>
+                                    </tr>
                                 }
-                                else if (item.Status == Dawy.Models.ProductStatus.Rejected)
-                                {
-                                    <span class="badge bg-danger">مرفوض</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-warning text-dark">قيد المراجعة</span>
-                                }
-                            </td>
-                            <td>@item.CreatedAt.ToString("yyyy-MM-dd")</td>
-                            <td>
-                                <div class="d-flex gap-2">
-                                    <a asp-action="Details" asp-route-id="@item.ProductId" class="btn btn-sm btn-outline-primary">التفاصيل</a>
-                                    @if (item.Status == Dawy.Models.ProductStatus.Pending && User.IsInRole(Dawy.Models.Roles.Donor))
-                                    {
-                                        <form asp-action="Cancel" asp-route-id="@item.ProductId" method="post" onsubmit="return confirm('هل أنت متأكد من إلغاء هذا التبرع؟');">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">إلغاء</button>
-                                        </form>
-                                    }
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="dawy-card p-4 text-center h-100 d-flex flex-column justify-content-center align-items-center bg-teal-light border-0">
+                    <i class="bi bi-gift-fill text-teal mb-3" style="font-size: 4.5rem;"></i>
+                    <h4 class="fw-bold text-teal">تبرعك ... حياة</h4>
+                    <p class="text-muted small mb-3">كل دواء تتبرع به قد يكون الأمل لشخص ما</p>
+                    <a asp-action="Create" class="btn btn-teal w-100">إضافة تبرع جديد</a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
