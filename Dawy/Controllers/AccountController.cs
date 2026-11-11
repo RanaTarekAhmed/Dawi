@@ -22,6 +22,17 @@ namespace Dawy.Controllers
             _passwordHasher = passwordHasher;
         }
 
+        // GET: /Account/Register
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Register()
+        {
+            if (User.Identity?.IsAuthenticated == true)
+                return RedirectToAction("Index", "Home");
+
+            return View(new RegisterViewModel { Role = Roles.Beneficiary });
+        }
+
         // POST: /Account/Register
         [HttpPost]
         [AllowAnonymous]
@@ -29,30 +40,30 @@ namespace Dawy.Controllers
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return View(model);
 
             if (!Roles.SelfAssignable.Contains(model.Role))
             {
-                ModelState.AddModelError(nameof(model.Role), "Invalid account type.");
-                return BadRequest(ModelState);
+                ModelState.AddModelError(nameof(model.Role), "نوع الحساب غير صالح.");
+                return View(model);
             }
 
             if (model.Role == Roles.Pharmacist)
             {
                 if (string.IsNullOrWhiteSpace(model.PharmacyName))
-                    ModelState.AddModelError(nameof(model.PharmacyName), "Pharmacy name is required.");
+                    ModelState.AddModelError(nameof(model.PharmacyName), "اسم الصيدلية مطلوب.");
 
                 if (string.IsNullOrWhiteSpace(model.PharmacyAddress))
-                    ModelState.AddModelError(nameof(model.PharmacyAddress), "Pharmacy address is required.");
+                    ModelState.AddModelError(nameof(model.PharmacyAddress), "عنوان الصيدلية مطلوب.");
 
                 if (string.IsNullOrWhiteSpace(model.PharmacyCity))
-                    ModelState.AddModelError(nameof(model.PharmacyCity), "Pharmacy city is required.");
+                    ModelState.AddModelError(nameof(model.PharmacyCity), "مدينة الصيدلية مطلوبة.");
 
                 if (string.IsNullOrWhiteSpace(model.PharmacyPhoneNumber))
-                    ModelState.AddModelError(nameof(model.PharmacyPhoneNumber), "Pharmacy phone number is required.");
+                    ModelState.AddModelError(nameof(model.PharmacyPhoneNumber), "رقم هاتف الصيدلية مطلوب.");
 
                 if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+                    return View(model);
             }
 
             var email = model.Email.Trim();
@@ -60,14 +71,14 @@ namespace Dawy.Controllers
 
             if (await _context.Users.AnyAsync(u => u.Email == email))
             {
-                ModelState.AddModelError(nameof(model.Email), "This email address is already in use.");
-                return BadRequest(ModelState);
+                ModelState.AddModelError(nameof(model.Email), "البريد الإلكتروني مستخدم بالفعل.");
+                return View(model);
             }
 
             if (await _context.Users.AnyAsync(u => u.NationalId == nationalId))
             {
-                ModelState.AddModelError(nameof(model.NationalId), "This national ID is already registered.");
-                return BadRequest(ModelState);
+                ModelState.AddModelError(nameof(model.NationalId), "الرقم القومي مسجل بالفعل.");
+                return View(model);
             }
 
             var user = new User
@@ -102,13 +113,25 @@ namespace Dawy.Controllers
             }
             catch (DbUpdateException)
             {
-                ModelState.AddModelError(string.Empty, "Unable to create the account. The email or national ID may already be registered.");
-                return BadRequest(ModelState);
+                ModelState.AddModelError(string.Empty, "تعذر إنشاء الحساب. قد يكون البريد الإلكتروني أو الرقم القومي مسجلاً بالفعل.");
+                return View(model);
             }
 
             await SignInUserAsync(user, isPersistent: false);
 
             return RedirectByRole(user.Role);
+        }
+
+        // GET: /Account/Login
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Login(string? returnUrl = null)
+        {
+            if (User.Identity?.IsAuthenticated == true)
+                return RedirectToAction("Index", "Home");
+
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
         }
 
         // POST: /Account/Login
@@ -117,10 +140,12 @@ namespace Dawy.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            ViewData["ReturnUrl"] = returnUrl;
 
-            const string genericError = "Email or password is incorrect.";
+            if (!ModelState.IsValid)
+                return View(model);
+
+            const string genericError = "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
 
             var email = model.Email.Trim();
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
@@ -128,13 +153,13 @@ namespace Dawy.Controllers
             if (user == null)
             {
                 ModelState.AddModelError(string.Empty, genericError);
-                return BadRequest(ModelState);
+                return View(model);
             }
 
             if (!user.IsActive)
             {
-                ModelState.AddModelError(string.Empty, "This account is inactive.");
-                return BadRequest(ModelState);
+                ModelState.AddModelError(string.Empty, "هذا الحساب غير نشط.");
+                return View(model);
             }
 
             var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
@@ -142,7 +167,7 @@ namespace Dawy.Controllers
             if (result == PasswordVerificationResult.Failed)
             {
                 ModelState.AddModelError(string.Empty, genericError);
-                return BadRequest(ModelState);
+                return View(model);
             }
 
             if (result == PasswordVerificationResult.SuccessRehashNeeded)
@@ -157,6 +182,14 @@ namespace Dawy.Controllers
                 return LocalRedirect(returnUrl);
 
             return RedirectByRole(user.Role);
+        }
+
+        // GET: /Account/AccessDenied
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+            return View();
         }
 
         // POST: /Account/Logout

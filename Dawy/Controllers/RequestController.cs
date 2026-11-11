@@ -34,6 +34,7 @@ namespace Dawy.Controllers
             {
                 ProductId = product.ProductId,
                 ProductName = product.ProductName,
+                Category = product.Category,
                 AvailableQuantity = product.Quantity
             });
         }
@@ -49,7 +50,14 @@ namespace Dawy.Controllers
                 return NotFound();
 
             model.ProductName = product.ProductName;
+            model.Category = product.Category;
             model.AvailableQuantity = product.Quantity;
+
+            // صورة الروشتة مطلوبة فقط لو فئة المنتج "أدوية" واختيارية لباقي الفئات
+            if (product.Category == "أدوية" && string.IsNullOrWhiteSpace(model.PrescriptionImageUrl))
+            {
+                ModelState.AddModelError(nameof(model.PrescriptionImageUrl), "صورة الروشتة مطلوبة للأدوية.");
+            }
 
             if (!ModelState.IsValid)
                 return View(model);

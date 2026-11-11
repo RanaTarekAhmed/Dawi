@@ -10,11 +10,11 @@ namespace Dawy.Models
         public User Donor { get; set; } = null!;
 
         public string ProductName { get; set; } = string.Empty;
-        public string Category { get; set; }
+        public string Category { get; set; } = string.Empty;
         public int Quantity { get; set; }
         public DateOnly ExpiryDate { get; set; }
         public string? ProductImageUrl { get; set; }
-        public string Status { get; set; }
+        public string Status { get; set; } = string.Empty;
 
         public int? PharmacyId { get; set; }
         public Pharmacy? Pharmacy { get; set; }

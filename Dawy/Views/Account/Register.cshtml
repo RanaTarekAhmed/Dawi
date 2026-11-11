@@ -1,0 +1,247 @@
+@model Dawy.ViewModels.RegisterViewModel
+@using Dawy.Models
+
+@{
+    ViewData["Title"] = "إنشاء حساب جديد";
+    var selectedRole = Model?.Role ?? Roles.Beneficiary;
+}
+
+<div class="row justify-content-center align-items-center py-4">
+    <div class="col-12 col-md-10 col-lg-7">
+        <div class="dawy-card p-4 p-md-5">
+            <!-- الشعار والعنوان -->
+            <div class="text-center mb-4">
+                <a asp-controller="Home" asp-action="Index" class="brand-logo justify-content-center mb-3">
+                    <div class="brand-heart">
+                        <i class="bi bi-heart-pulse-fill"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold fs-3 text-teal lh-1">داوي</div>
+                        <small class="text-muted" style="font-size: 0.75rem;">معاً .. لصحة أفضل</small>
+                    </div>
+                </a>
+                <h4 class="fw-bold text-teal mt-3 mb-1">إنشاء حساب جديد</h4>
+                <p class="text-muted small">اختر نوع حسابك وأدخل بياناتك</p>
+            </div>
+
+            <!-- ملخص الأخطاء العامة -->
+            @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+            {
+                <div class="alert alert-danger py-2 px-3 small rounded-3 mb-3">
+                    <div asp-validation-summary="ModelOnly" class="text-danger m-0"></div>
+                </div>
+            }
+
+            <form asp-action="Register" method="post" id="registerForm" novalidate>
+                @Html.AntiForgeryToken()
+
+                <!-- اختيار نوع الحساب (الكروت كما في التصميم) -->
+                <input type="hidden" asp-for="Role" id="selectedRoleInput" value="@selectedRole" />
+                <span asp-validation-for="Role" class="text-danger small d-block text-center mb-2"></span>
+
+                <div class="row g-3 mb-4 text-center">
+                    <!-- كارت مستفيد -->
+                    <div class="col-6 col-sm-3">
+                        <div class="role-card p-3 border rounded-3 cursor-pointer @(selectedRole == Roles.Beneficiary ? "active" : "")"
+                             onclick="selectRole('@Roles.Beneficiary', this)">
+                            <div class="role-icon mb-2 fs-3 text-teal">
+                                <i class="bi bi-people-fill"></i>
+                            </div>
+                            <div class="fw-bold small role-title">مستفيد</div>
+                        </div>
+                    </div>
+
+                    <!-- كارت متبرع -->
+                    <div class="col-6 col-sm-3">
+                        <div class="role-card p-3 border rounded-3 cursor-pointer @(selectedRole == Roles.Donor ? "active" : "")"
+                             onclick="selectRole('@Roles.Donor', this)">
+                            <div class="role-icon mb-2 fs-3 text-teal">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                            <div class="fw-bold small role-title">متبرع</div>
+                        </div>
+                    </div>
+
+                    <!-- كارت صيدلي -->
+                    <div class="col-6 col-sm-3">
+                        <div class="role-card p-3 border rounded-3 cursor-pointer @(selectedRole == Roles.Pharmacist ? "active" : "")"
+                             onclick="selectRole('@Roles.Pharmacist', this)">
+                            <div class="role-icon mb-2 fs-3 text-teal">
+                                <i class="bi bi-hospital"></i>
+                            </div>
+                            <div class="fw-bold small role-title">صيدلي</div>
+                        </div>
+                    </div>
+
+                    <!-- كارت مدير النظام (معطل للتسجيل الذاتي) -->
+                    <div class="col-6 col-sm-3">
+                        <div class="role-card p-3 border rounded-3 text-muted opacity-50" title="يتم التعيين من قبل الإدارة فقط">
+                            <div class="role-icon mb-2 fs-3">
+                                <i class="bi bi-gear-fill"></i>
+                            </div>
+                            <div class="fw-bold small">مدير النظام</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- البيانات الأساسية -->
+                <div class="row g-3">
+                    <!-- الاسم الكامل -->
+                    <div class="col-12 col-md-6">
+                        <label asp-for="FullName" class="form-label small fw-semibold text-secondary">الاسم الكامل</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-person"></i></span>
+                            <input asp-for="FullName" class="form-control border-start-0" placeholder="أدخل اسمك الثلاثي أو الرباعي" />
+                        </div>
+                        <span asp-validation-for="FullName" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <!-- البريد الإلكتروني -->
+                    <div class="col-12 col-md-6">
+                        <label asp-for="Email" class="form-label small fw-semibold text-secondary">البريد الإلكتروني</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-envelope"></i></span>
+                            <input asp-for="Email" class="form-control border-start-0" placeholder="example@mail.com" dir="ltr" style="text-align: right;" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <!-- رقم الهاتف -->
+                    <div class="col-12 col-md-6">
+                        <label asp-for="PhoneNumber" class="form-label small fw-semibold text-secondary">رقم الهاتف</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-telephone"></i></span>
+                            <input asp-for="PhoneNumber" class="form-control border-start-0" placeholder="01xxxxxxxxx" dir="ltr" style="text-align: right;" />
+                        </div>
+                        <span asp-validation-for="PhoneNumber" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <!-- الرقم القومي -->
+                    <div class="col-12 col-md-6">
+                        <label asp-for="NationalId" class="form-label small fw-semibold text-secondary">الرقم القومي (14 رقم)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-card-text"></i></span>
+                            <input asp-for="NationalId" class="form-control border-start-0" placeholder="14 رقم قومي" maxlength="14" dir="ltr" style="text-align: right;" />
+                        </div>
+                        <span asp-validation-for="NationalId" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <!-- كلمة المرور -->
+                    <div class="col-12 col-md-6">
+                        <label asp-for="Password" class="form-label small fw-semibold text-secondary">كلمة المرور</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-lock"></i></span>
+                            <input asp-for="Password" id="regPassword" type="password" class="form-control border-start-0 border-end-0" placeholder="8 أحرف على الأقل" />
+                            <button type="button" class="input-group-text bg-white border-start-0 text-muted" onclick="togglePasswordVisibility('regPassword', this)">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <!-- تأكيد كلمة المرور -->
+                    <div class="col-12 col-md-6">
+                        <label asp-for="ConfirmPassword" class="form-label small fw-semibold text-secondary">تأكيد كلمة المرور</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-lock-fill"></i></span>
+                            <input asp-for="ConfirmPassword" id="regConfirmPassword" type="password" class="form-control border-start-0 border-end-0" placeholder="أعد إدخال كلمة المرور" />
+                            <button type="button" class="input-group-text bg-white border-start-0 text-muted" onclick="togglePasswordVisibility('regConfirmPassword', this)">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="ConfirmPassword" class="text-danger small mt-1 d-block"></span>
+                    </div>
+                </div>
+
+                <!-- بيانات الصيدلية (تظهر فقط عند اختيار صيدلي) -->
+                <div id="pharmacistFields" class="mt-4 p-3 border rounded-3 bg-light @(selectedRole == Roles.Pharmacist ? "" : "d-none")">
+                    <h6 class="fw-bold text-teal mb-3"><i class="bi bi-building"></i> بيانات الصيدلية</h6>
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label asp-for="PharmacyName" class="form-label small fw-semibold text-secondary">اسم الصيدلية</label>
+                            <input asp-for="PharmacyName" class="form-control" placeholder="مثال: صيدلية الأمل" />
+                            <span asp-validation-for="PharmacyName" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label asp-for="PharmacyCity" class="form-label small fw-semibold text-secondary">المدينة</label>
+                            <input asp-for="PharmacyCity" class="form-control" placeholder="مثال: القاهرة" />
+                            <span asp-validation-for="PharmacyCity" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label asp-for="PharmacyAddress" class="form-label small fw-semibold text-secondary">العنوان بالتفصيل</label>
+                            <input asp-for="PharmacyAddress" class="form-control" placeholder="الشارع، المنطقة، أقرب علامة مميزة" />
+                            <span asp-validation-for="PharmacyAddress" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label asp-for="PharmacyPhoneNumber" class="form-label small fw-semibold text-secondary">رقم هاتف الصيدلية</label>
+                            <input asp-for="PharmacyPhoneNumber" class="form-control" placeholder="02xxxxxxx أو 01xxxxxxxxx" dir="ltr" style="text-align: right;" />
+                            <span asp-validation-for="PharmacyPhoneNumber" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- زر الإرسال -->
+                <button type="submit" class="btn btn-teal w-100 py-2 fw-bold mt-4 mb-3 shadow-sm">
+                    إنشاء حساب
+                </button>
+
+                <!-- رابط تسجيل الدخول -->
+                <div class="text-center">
+                    <span class="text-muted small">لديك حساب بالفعل؟</span>
+                    <a asp-action="Login" class="small text-teal fw-bold text-decoration-none ms-1">تسجيل الدخول</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .cursor-pointer {
+        cursor: pointer;
+    }
+    .role-card {
+        transition: all 0.2s ease-in-out;
+        background-color: #fff;
+    }
+    .role-card:hover {
+        border-color: var(--dawy-teal) !important;
+        transform: translateY(-2px);
+    }
+    .role-card.active {
+        border-color: var(--dawy-teal) !important;
+        border-width: 2px !important;
+        background-color: var(--dawy-teal-light) !important;
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function selectRole(role, element) {
+            document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById('selectedRoleInput').value = role;
+
+            const pharmacySection = document.getElementById('pharmacistFields');
+            if (role === '@Roles.Pharmacist') {
+                pharmacySection.classList.remove('d-none');
+            } else {
+                pharmacySection.classList.add('d-none');
+            }
+        }
+
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        }
+    </script>
+}

@@ -1,0 +1,107 @@
+@model Dawy.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "تسجيل الدخول";
+    var returnUrl = ViewData["ReturnUrl"] as string;
+}
+
+<div class="row justify-content-center align-items-center py-4">
+    <div class="col-12 col-md-8 col-lg-5">
+        <div class="dawy-card p-4 p-md-5">
+            <!-- الشعار والعنوان -->
+            <div class="text-center mb-4">
+                <a asp-controller="Home" asp-action="Index" class="brand-logo justify-content-center mb-3">
+                    <div class="brand-heart">
+                        <i class="bi bi-heart-pulse-fill"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold fs-3 text-teal lh-1">داوي</div>
+                        <small class="text-muted" style="font-size: 0.75rem;">معاً .. لصحة أفضل</small>
+                    </div>
+                </a>
+                <h4 class="fw-bold text-teal mt-3 mb-1">تسجيل الدخول</h4>
+                <p class="text-muted small">ادخل بياناتك للمتابعة</p>
+            </div>
+
+            <!-- ملخص الأخطاء -->
+            @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+            {
+                <div class="alert alert-danger py-2 px-3 small rounded-3 mb-3">
+                    <div asp-validation-summary="ModelOnly" class="text-danger m-0"></div>
+                </div>
+            }
+
+            <form asp-action="Login" asp-route-returnUrl="@returnUrl" method="post" novalidate>
+                @Html.AntiForgeryToken()
+
+                <!-- البريد الإلكتروني -->
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label small fw-semibold text-secondary">البريد الإلكتروني</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0 text-muted">
+                            <i class="bi bi-envelope"></i>
+                        </span>
+                        <input asp-for="Email" class="form-control border-start-0" placeholder="example@mail.com" dir="ltr" style="text-align: right;" />
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
+                </div>
+
+                <!-- كلمة المرور -->
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label small fw-semibold text-secondary">كلمة المرور</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0 text-muted">
+                            <i class="bi bi-lock"></i>
+                        </span>
+                        <input asp-for="Password" id="loginPassword" type="password" class="form-control border-start-0 border-end-0" placeholder="••••••••" />
+                        <button type="button" class="input-group-text bg-white border-start-0 text-muted" onclick="togglePasswordVisibility('loginPassword', this)">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger small mt-1 d-block"></span>
+                </div>
+
+                <!-- تذكرني ونسيت كلمة المرور -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="form-check">
+                        <input asp-for="RememberMe" class="form-check-input" type="checkbox" id="rememberMeCheck" />
+                        <label class="form-check-label small text-secondary" for="rememberMeCheck">
+                            تذكرني
+                        </label>
+                    </div>
+                    <a href="javascript:void(0)" class="small text-muted text-decoration-none">نسيت كلمة المرور؟</a>
+                </div>
+
+                <!-- زر تسجيل الدخول -->
+                <button type="submit" class="btn btn-teal w-100 py-2 fw-bold mb-3 shadow-sm">
+                    تسجيل الدخول
+                </button>
+
+                <!-- رابط إنشاء حساب -->
+                <div class="text-center mt-3">
+                    <span class="text-muted small">ليس لديك حساب؟</span>
+                    <a asp-action="Register" class="small text-teal fw-bold text-decoration-none ms-1">إنشاء حساب</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        }
+    </script>
+}
