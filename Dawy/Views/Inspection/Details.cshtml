@@ -1,0 +1,109 @@
+﻿@model Dawy.Models.Product
+@{
+    ViewData["Title"] = "فحص الدواء - " + Model.ProductName;
+}
+
+<div class="container py-4" dir="rtl">
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h4 class="mb-0 fw-bold">بطاقة الفحص الصيدلي: @Model.ProductName</h4>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">رجوع للقائمة</a>
+        </div>
+        <div class="card-body p-4">
+            <div class="row">
+                <div class="col-md-4 text-center mb-3">
+                    @if (!string.IsNullOrEmpty(Model.ProductImageUrl))
+                    {
+                        <img src="@Model.ProductImageUrl" class="img-fluid rounded border" alt="@Model.ProductName" style="max-height: 300px;" />
+                    }
+                    else
+                    {
+                        <div class="bg-light rounded p-5 text-muted">لم يرفق المتبرع صورة</div>
+                    }
+                </div>
+                <div class="col-md-8">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th class="bg-light w-25">اسم الدواء</th>
+                            <td class="fw-bold">@Model.ProductName</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">الفئة</th>
+                            <td>@Model.Category</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">الكمية المعلنة</th>
+                            <td>@Model.Quantity عبوة</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">تاريخ انتهاء الصلاحية</th>
+                            <td class="fw-bold text-danger">@Model.ExpiryDate.ToString("yyyy-MM-dd")</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">اسم المتبرع</th>
+                            <td>@(Model.Donor?.FullName ?? "-") (@(Model.Donor?.PhoneNumber ?? "بدون هاتف"))</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">الصيدلية المستلمة</th>
+                            <td>@(Model.Pharmacy?.PharmacyName ?? "-")</td>
+                        </tr>
+                    </table>
+
+                    @if (Model.Status == Dawy.Models.ProductStatus.Pending)
+                    {
+                        <div class="row g-3 mt-3">
+                            <!-- فورم القبول والاعتماد -->
+                            <div class="col-md-6">
+                                <div class="card border-success h-100">
+                                    <div class="card-header bg-success text-white fw-bold">اعتماد وقبول الدواء</div>
+                                    <div class="card-body">
+                                        <form asp-action="Approve" asp-route-id="@Model.ProductId" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <div class="mb-2">
+                                                <label class="form-label small fw-bold">الكمية السليمة الفعلية بعد الفحص</label>
+                                                <input type="number" name="verifiedQuantity" value="@Model.Quantity" min="1" class="form-control form-control-sm" />
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label small fw-bold">ملاحظات الفحص (اختياري)</label>
+                                                <input type="text" name="notes" class="form-control form-control-sm" placeholder="العبوة سليمة ومحكمة الغلق..." />
+                                            </div>
+                                            <button type="submit" class="btn btn-success w-100">قبول وإدراج في الكتالوج</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- فورم الرفض -->
+                            <div class="col-md-6">
+                                <div class="card border-danger h-100">
+                                    <div class="card-header bg-danger text-white fw-bold">رفض التبرع</div>
+                                    <div class="card-body">
+                                        <form asp-action="Reject" asp-route-id="@Model.ProductId" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <div class="mb-3">
+                                                <label class="form-label small fw-bold">سبب الرفض (إجباري لإبلاغ المتبرع)</label>
+                                                <textarea name="reason" rows="3" class="form-control form-control-sm" required placeholder="مثال: العبوة مفتوحة أو سوء تخزين..."></textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-danger w-100">رفض التبرع</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info mt-3 mb-0">
+                            تمت مراجعة هذا التبرع بالفعل وحالته الحالية: <strong>@Model.Status</strong>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

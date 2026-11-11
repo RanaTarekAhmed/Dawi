@@ -1,0 +1,49 @@
+﻿@model Dawy.Models.Pharmacy
+@{
+    ViewData["Title"] = Model.PharmacyName;
+    var products = ViewBag.AvailableProducts as List<Dawy.Models.Product> ?? new List<Dawy.Models.Product>();
+}
+
+<div class="container py-4" dir="rtl">
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h2 class="fw-bold text-primary mb-2">@Model.PharmacyName</h2>
+                    <p class="mb-1"><strong>المدينة:</strong> @Model.City</p>
+                    <p class="mb-1"><strong>العنوان:</strong> @Model.Address</p>
+                    <p class="mb-0"><strong>رقم الهاتف:</strong> @Model.PhoneNumber</p>
+                </div>
+                <span class="badge @(Model.IsVerified ? "bg-success" : "bg-warning text-dark") fs-6">
+                    @(Model.IsVerified ? "معتمدة" : "قيد المراجعة")
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="fw-bold mb-3">الأدوية المتوفرة حالياً في هذه الصيدلية (@products.Count)</h4>
+
+    @if (!products.Any())
+    {
+        <div class="alert alert-secondary">لا توجد أدوية متاحة في هذه الصيدلية حالياً.</div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            @foreach (var item in products)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <span class="badge bg-info text-dark mb-2">@item.Category</span>
+                            <h5 class="fw-bold">@item.ProductName</h5>
+                            <p class="small text-muted mb-1">الكمية المتاحة: @item.Quantity</p>
+                            <p class="small text-muted mb-3">الصلاحية: @item.ExpiryDate.ToString("yyyy-MM-dd")</p>
+                            <a asp-controller="Category" asp-action="Details" asp-route-id="@item.ProductId" class="btn btn-sm btn-primary w-100">عرض الدواء</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

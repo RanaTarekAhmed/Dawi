@@ -1,0 +1,71 @@
+﻿@model IEnumerable<Dawy.Models.Pharmacy>
+@{
+    ViewData["Title"] = "دليل الصيدليات المعتمدة";
+    var cities = ViewBag.Cities as List<string> ?? new List<string>();
+    var currentCity = ViewBag.CurrentCity as string;
+    var currentSearch = ViewBag.CurrentSearch as string;
+}
+
+<div class="container py-4" dir="rtl">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-primary mb-1">دليل الصيدليات الشريكة المعتمدة</h2>
+            <p class="text-muted mb-0">الصيدليات المعتمدة لاستلام وفحص التبرعات الدوائية وتسليمها للمستفيدين</p>
+        </div>
+        @if (User.IsInRole(Dawy.Models.Roles.Pharmacist))
+        {
+            <a asp-action="MyPharmacies" class="btn btn-outline-primary">إدارة صيدلياتي</a>
+        }
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4 bg-light">
+        <div class="card-body">
+            <form method="get" asp-action="Index" class="row g-3">
+                <div class="col-md-6">
+                    <input type="text" name="search" value="@currentSearch" class="form-control" placeholder="ابحث باسم الصيدلية أو العنوان..." />
+                </div>
+                <div class="col-md-4">
+                    <select name="city" class="form-select">
+                        <option value="الكل">كل المدن</option>
+                        @foreach (var c in cities)
+                        {
+                            <option value="@c" selected="@(currentCity == c)">@c</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-primary">تصفية</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center py-4">لا توجد صيدليات معتمدة مطابقة للبحث حالياً.</div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            @foreach (var p in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="badge bg-success">صيدلية معتمدة</span>
+                                <span class="badge bg-secondary">@p.City</span>
+                            </div>
+                            <h5 class="card-title fw-bold">@p.PharmacyName</h5>
+                            <p class="card-text text-muted small mb-1"><strong>العنوان:</strong> @p.Address</p>
+                            <p class="card-text text-muted small mb-0"><strong>الهاتف:</strong> @p.PhoneNumber</p>
+                        </div>
+                        <div class="card-footer bg-white border-0 pt-0 pb-3">
+                            <a asp-action="Details" asp-route-id="@p.PharmacyId" class="btn btn-outline-primary w-100">عرض التفاصيل والأدوية المتاحة</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

@@ -1,0 +1,84 @@
+﻿@model IEnumerable<Dawy.Models.Pharmacy>
+@{
+    ViewData["Title"] = "إدارة صيدلياتي";
+}
+
+<div class="container py-4" dir="rtl">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary mb-0">لوحة الصيدلي - صيدلياتي</h2>
+        <div class="d-flex gap-2">
+            <a asp-controller="Inspection" asp-action="Index" class="btn btn-warning">
+                فحص التبرعات الواردة (@ViewBag.PendingInspectionsCount)
+            </a>
+            <a asp-action="Create" class="btn btn-success">+ إضافة صيدلية جديدة</a>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4 text-center">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3">
+                <h6 class="text-muted">تبرعات تنتظر الفحص</h6>
+                <h3 class="fw-bold text-warning mb-0">@ViewBag.PendingInspectionsCount</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3">
+                <h6 class="text-muted">أدوية معتمدة متوفرة</h6>
+                <h3 class="fw-bold text-success mb-0">@ViewBag.ApprovedProductsCount</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3">
+                <h6 class="text-muted">طلبات مستفيدين نشطة</h6>
+                <h3 class="fw-bold text-primary mb-0">@ViewBag.ActiveRequestsCount</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>اسم الصيدلية</th>
+                        <th>المدينة</th>
+                        <th>العنوان</th>
+                        <th>الهاتف</th>
+                        <th>حالة الاعتماد</th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold">@item.PharmacyName</td>
+                            <td>@item.City</td>
+                            <td>@item.Address</td>
+                            <td>@item.PhoneNumber</td>
+                            <td>
+                                @if (item.IsVerified)
+                                {
+                                    <span class="badge bg-success">معتمدة</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">بانتظار موافقة الإدارة</span>
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.PharmacyId" class="btn btn-sm btn-outline-primary">تعديل</a>
+                                <a asp-action="Details" asp-route-id="@item.PharmacyId" class="btn btn-sm btn-outline-secondary">عرض</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

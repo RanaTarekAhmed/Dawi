@@ -1,0 +1,143 @@
+﻿@model IEnumerable<Dawy.Models.Product>
+@{
+    ViewData["Title"] = "كتالوج الأدوية والمستلزمات";
+    var categories = ViewBag.Categories as string[] ?? Array.Empty<string>();
+    var counts = ViewBag.CategoryCounts as Dictionary<string, int> ?? new Dictionary<string, int>();
+    var cities = ViewBag.Cities as List<string> ?? new List<string>();
+    var currentCategory = ViewBag.CurrentCategory as string;
+    var currentSearch = ViewBag.CurrentSearch as string;
+    var currentCity = ViewBag.CurrentCity as string;
+    var currentSort = ViewBag.CurrentSort as string;
+}
+
+<div class="container py-4" dir="rtl">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-primary mb-1">كتالوج الأدوية المتاحة</h2>
+            <p class="text-muted mb-0">تصفح الأدوية والمستلزمات الطبية المعتمدة والمتاحة للطلب عبر الصيدليات الشريكة</p>
+        </div>
+        @if (User.IsInRole(Dawy.Models.Roles.Donor))
+        {
+            <a asp-controller="Donation" asp-action="Create" class="btn btn-success px-4">
+                + تبرع بدواء جديد
+            </a>
+        }
+    </div>
+
+    <!-- شريط البحث والفلترة -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body bg-light rounded">
+            <form method="get" asp-action="Index" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">بحث باسم الدواء</label>
+                    <input type="text" name="search" value="@currentSearch" class="form-control" placeholder="اكتب اسم الدواء أو المستلزم..." />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">الفئة</label>
+                    <select name="category" class="form-select">
+                        <option value="الكل">كل الفئات</option>
+                        @foreach (var cat in categories)
+                        {
+                            var count = counts.ContainsKey(cat) ? counts[cat] : 0;
+                            <option value="@cat" selected="@(currentCategory == cat)">@cat (@count)</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">المدينة</label>
+                    <select name="city" class="form-select">
+                        <option value="">كل المدن</option>
+                        @foreach (var c in cities)
+                        {
+                            <option value="@c" selected="@(currentCity == c)">@c</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">ترتيب حسب</label>
+                    <select name="sortBy" class="form-select">
+                        <option value="" selected="@(string.IsNullOrEmpty(currentSort))">الأحدث إضافة</option>
+                        <option value="expiry" selected="@(currentSort == "expiry")">الأقرب انتهاءً للصلاحية</option>
+                        <option value="quantity" selected="@(currentSort == "quantity")">الأكثر كمية</option>
+                    </select>
+                </div>
+                <div class="col-md-1 d-grid">
+                    <button type="submit" class="btn btn-primary">بحث</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- أزرار الفئات السريعة -->
+    <div class="mb-4 d-flex flex-wrap gap-2">
+        <a asp-action="Index" class="btn btn-sm @(string.IsNullOrEmpty(currentCategory) || currentCategory == "الكل" ? "btn-primary" : "btn-outline-primary")">
+            الكل
+        </a>
+        @foreach (var cat in categories)
+        {
+            var count = counts.ContainsKey(cat) ? counts[cat] : 0;
+            <a asp-action="Index" asp-route-category="@cat" asp-route-search="@currentSearch" asp-route-city="@currentCity"
+               class="btn btn-sm @(currentCategory == cat ? "btn-primary" : "btn-outline-primary")">
+                @cat <span class="badge bg-secondary ms-1">@count</span>
+            </a>
+        }
+    </div>
+
+    <!-- عرض الكروت -->
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center py-5">
+            <h5 class="fw-bold">لا توجد أدوية مطابقة لبحثك حالياً</h5>
+            <p class="mb-0">جرب تغيير الفئة أو البحث بكلمات أخرى.</p>
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-0">
+                        @if (!string.IsNullOrEmpty(item.ProductImageUrl))
+                        {
+                            <img src="@item.ProductImageUrl" class="card-img-top" alt="@item.ProductName" style="height: 200px; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <div class="bg-light d-flex align-items-center justify-content-center text-muted" style="height: 200px;">
+                                <span>لا توجد صورة</span>
+                            </div>
+                        }
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge bg-info text-dark">@item.Category</span>
+                                <span class="badge bg-success">متاح: @item.Quantity</span>
+                            </div>
+                            <h5 class="card-title fw-bold">@item.ProductName</h5>
+                            <p class="card-text text-muted small mb-1">
+                                <strong>تاريخ الصلاحية:</strong> @item.ExpiryDate.ToString("yyyy-MM-dd")
+                            </p>
+                            @if (item.Pharmacy != null)
+                            {
+                                <p class="card-text text-muted small mb-0">
+                                    <strong>الصيدلية:</strong> @item.Pharmacy.PharmacyName (@item.Pharmacy.City)
+                                </p>
+                            }
+                        </div>
+                        <div class="card-footer bg-white border-0 pt-0 pb-3 d-flex gap-2">
+                            <a asp-action="Details" asp-route-id="@item.ProductId" class="btn btn-outline-primary w-100">
+                                التفاصيل
+                            </a>
+                            @if (User.IsInRole(Dawy.Models.Roles.Beneficiary))
+                            {
+                                <a asp-controller="Request" asp-action="Create" asp-route-productId="@item.ProductId" class="btn btn-primary w-100">
+                                    طلب الدواء
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

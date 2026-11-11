@@ -1,0 +1,134 @@
+﻿@model IEnumerable<Dawy.Models.Product>
+@{
+    ViewData["Title"] = "لوحة تبرعاتي";
+    var currentStatus = ViewBag.CurrentStatus as string;
+}
+
+<div class="container py-4" dir="rtl">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-primary mb-1">لوحة تبرعاتي</h2>
+            <p class="text-muted mb-0">تابع حالة الأدوية التي تبرعت بها ومراجعتها في الصيدليات</p>
+        </div>
+        @if (User.IsInRole(Dawy.Models.Roles.Donor))
+        {
+            <a asp-action="Create" class="btn btn-success px-4">+ إضافة تبرع جديد</a>
+        }
+    </div>
+
+    <!-- كروت الإحصائيات -->
+    <div class="row g-3 mb-4 text-center">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3">
+                <h6 class="text-muted">إجمالي التبرعات</h6>
+                <h3 class="fw-bold text-primary mb-0">@ViewBag.TotalDonations</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3">
+                <h6 class="text-muted">مقبول ومعتمد</h6>
+                <h3 class="fw-bold text-success mb-0">@ViewBag.ApprovedCount</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3">
+                <h6 class="text-muted">قيد المراجعة</h6>
+                <h3 class="fw-bold text-warning mb-0">@ViewBag.PendingCount</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3">
+                <h6 class="text-muted">مرفوض</h6>
+                <h3 class="fw-bold text-danger mb-0">@ViewBag.RejectedCount</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- أزرار فلترة الحالة -->
+    <div class="mb-3 d-flex gap-2">
+        <a asp-action="Index" class="btn btn-sm @(string.IsNullOrEmpty(currentStatus) ? "btn-dark" : "btn-outline-dark")">الكل</a>
+        <a asp-action="Index" asp-route-status="@Dawy.Models.ProductStatus.Pending" class="btn btn-sm @(currentStatus == Dawy.Models.ProductStatus.Pending ? "btn-warning" : "btn-outline-warning")">قيد المراجعة</a>
+        <a asp-action="Index" asp-route-status="@Dawy.Models.ProductStatus.Approved" class="btn btn-sm @(currentStatus == Dawy.Models.ProductStatus.Approved ? "btn-success" : "btn-outline-success")">مقبول</a>
+        <a asp-action="Index" asp-route-status="@Dawy.Models.ProductStatus.Rejected" class="btn btn-sm @(currentStatus == Dawy.Models.ProductStatus.Rejected ? "btn-danger" : "btn-outline-danger")">مرفوض</a>
+    </div>
+
+    <!-- جدول التبرعات -->
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>اسم الدواء</th>
+                        <th>الفئة</th>
+                        <th>الكمية</th>
+                        <th>تاريخ الصلاحية</th>
+                        <th>الصيدلية المستلمة</th>
+                        <th>الحالة</th>
+                        <th>تاريخ الإضافة</th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">لا توجد تبرعات مسجلة حتى الآن.</td>
+                        </tr>
+                    }
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold">@item.ProductName</td>
+                            <td>@item.Category</td>
+                            <td>@item.Quantity</td>
+                            <td>@item.ExpiryDate.ToString("yyyy-MM-dd")</td>
+                            <td>@(item.Pharmacy?.PharmacyName ?? "غير محدد")</td>
+                            <td>
+                                @if (item.Status == Dawy.Models.ProductStatus.Approved)
+                                {
+                                    <span class="badge bg-success">مقبول</span>
+                                }
+                                else if (item.Status == Dawy.Models.ProductStatus.Rejected)
+                                {
+                                    <span class="badge bg-danger">مرفوض</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">قيد المراجعة</span>
+                                }
+                            </td>
+                            <td>@item.CreatedAt.ToString("yyyy-MM-dd")</td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a asp-action="Details" asp-route-id="@item.ProductId" class="btn btn-sm btn-outline-primary">التفاصيل</a>
+                                    @if (item.Status == Dawy.Models.ProductStatus.Pending && User.IsInRole(Dawy.Models.Roles.Donor))
+                                    {
+                                        <form asp-action="Cancel" asp-route-id="@item.ProductId" method="post" onsubmit="return confirm('هل أنت متأكد من إلغاء هذا التبرع؟');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">إلغاء</button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
