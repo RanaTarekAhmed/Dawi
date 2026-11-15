@@ -19,5 +19,7 @@ namespace Dawy.Models
         public decimal FeeAmount { get; set; }
         public bool IsPaid { get; set; }
         public string? RejectionReason { get; set; }
+
+        public DateTime? CollectedAt { get; set; }   // وقت الاستلام الفعلي
     }
 }

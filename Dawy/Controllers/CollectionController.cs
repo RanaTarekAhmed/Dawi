@@ -1,4 +1,4 @@
-
+using System.Security.Claims;
 using Dawy.Data;
 using Dawy.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -17,152 +17,113 @@ namespace Dawy.Controllers
             _context = context;
         }
 
-  
-        public async Task<IActionResult> Index()
+        private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        // الأدمن يشوف الكل، والصيدلي يشوف طلبات صيدلياته بس
+        private IQueryable<Request> ManageableRequests()
         {
-            var collections = await _context.Requests
-                .Include(r => r.Product)
-                    .ThenInclude(p => p.Pharmacy)
+            var query = _context.Requests
+                .Include(r => r.Product).ThenInclude(p => p.Pharmacy)
                 .Include(r => r.Beneficiary)
-                .Where(r => r.RejectionReason == null)
-                .OrderBy(r => r.CollectionDate)
-                .ToListAsync();
+                .AsQueryable();
 
-            if (User.IsInRole(Roles.Pharmacist))
-            {
-                int pharmacistId = int.Parse(User.FindFirst(
-                    System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+            if (User.IsInRole(Roles.Admin))
+                return query;
 
-                collections = collections
-                    .Where(r => r.Product.Pharmacy != null &&
-                                r.Product.Pharmacy.PharmacistId == pharmacistId)
-                    .ToList();
-            }
-
-            return View(collections);
+            var userId = CurrentUserId;
+            return query.Where(r => r.Product.Pharmacy != null
+                                 && r.Product.Pharmacy.PharmacistId == userId);
         }
 
-    
+        private IActionResult Back(string error)
+        {
+            TempData["ErrorMessage"] = error;
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var requests = await ManageableRequests()
+                .AsNoTracking()
+                .Where(r => r.RejectionReason == null && r.CollectedAt == null)
+                .OrderBy(r => r.CollectionDate ?? DateTime.MaxValue)
+                .ToListAsync();
+
+            return View(requests);
+        }
+
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
                 return NotFound();
 
-            var collection = await _context.Requests
-                .Include(r => r.Product)
-                    .ThenInclude(p => p.Pharmacy)
-                .Include(r => r.Beneficiary)
-                .FirstOrDefaultAsync(r => r.RequestId == id);
-
-            if (collection == null || collection.RejectionReason != null)
-                return NotFound();
-
-            if (!await CanManageCollection(collection))
-                return Forbid();
-
-            return View(collection);
-        }
-
-     
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Schedule(int id, DateTime collectionDate)
-        {
-            if (collectionDate <= DateTime.Now)
-                return BadRequest("Collection date must be in the future.");
-
-            var request = await _context.Requests
-                .Include(r => r.Product)
-                    .ThenInclude(p => p.Pharmacy)
-                .FirstOrDefaultAsync(r => r.RequestId == id);
-
-            if (request == null || request.RejectionReason != null)
-                return NotFound();
-
-            if (!await CanManageCollection(request))
-                return Forbid();
-
-            request.CollectionDate = collectionDate;
-
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Collection scheduled successfully.";
-
-            return RedirectToAction(nameof(Index));
-        }
-
-       
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Confirm(int id)
-        {
-            var request = await _context.Requests
-                .Include(r => r.Product)
-                    .ThenInclude(p => p.Pharmacy)
-                .FirstOrDefaultAsync(r => r.RequestId == id);
-
-            if (request == null || request.RejectionReason != null)
-                return NotFound();
-
-            if (!await CanManageCollection(request))
-                return Forbid();
-
-            if (request.CollectionDate == null)
-                return BadRequest("Schedule the collection before confirming it.");
-
-            request.CollectionDate = DateTime.Now;
-
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Collection confirmed successfully.";
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Reject(int id, string reason)
-        {
-            if (string.IsNullOrWhiteSpace(reason))
-                return BadRequest("Rejection reason is required.");
-
-            var request = await _context.Requests
-                .Include(r => r.Product)
-                    .ThenInclude(p => p.Pharmacy)
+            var request = await ManageableRequests()
+                .AsNoTracking()
                 .FirstOrDefaultAsync(r => r.RequestId == id);
 
             if (request == null)
                 return NotFound();
 
-            if (!await CanManageCollection(request))
-                return Forbid();
+            return View(request);
+        }
 
-            if (request.CollectionDate != null || request.IsPaid)
-                return BadRequest("This request cannot be rejected.");
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Schedule(int id, DateTime collectionDate, decimal fee)
+        {
+            if (collectionDate <= DateTime.Now)
+                return Back("The collection date must be in the future.");
 
-            request.RejectionReason = reason.Trim();
-            request.Product.Quantity += request.RequestedQuantity;
+            if (fee < 0)
+                return Back("The fee cannot be negative.");
+
+            var request = await ManageableRequests().FirstOrDefaultAsync(r => r.RequestId == id);
+            if (request == null)
+                return NotFound();
+
+            if (request.RejectionReason != null || request.CollectedAt != null)
+                return Back("The collection date of this request cannot be changed");
+
+            request.CollectionDate = collectionDate;
+
+            // مينفعش الرسوم تتغير بعد الدفع
+            if (!request.IsPaid)
+                request.FeeAmount = fee;
+
+            _context.Notifications.Add(new Notification
+            {
+                UserId = request.BeneficiaryId,
+                Title = "Collection date set",
+                Message = $"Collection date for ({request.Product.ProductName}): {collectionDate:yyyy-MM-dd HH:mm}",
+                Link = "/Request/MyRequests",
+                CreatedAt = DateTime.UtcNow
+            });
 
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Request rejected successfully.";
-
+            TempData["SuccessMessage"] = "Collection date set successfully.";
             return RedirectToAction(nameof(Index));
         }
 
-        private async Task<bool> CanManageCollection(Request request)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Confirm(int id)
         {
-            if (User.IsInRole(Roles.Admin))
-                return true;
+            var request = await ManageableRequests().FirstOrDefaultAsync(r => r.RequestId == id);
+            if (request == null)
+                return NotFound();
 
-            if (!User.IsInRole(Roles.Pharmacist))
-                return false;
+            if (request.RejectionReason != null || request.CollectedAt != null)
+                return Back("The collection of this request cannot be confirmed.");
 
-            int pharmacistId = int.Parse(User.FindFirst(
-                System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+            if (request.FeeAmount > 0 && !request.IsPaid)
+                return Back("The fee has not been paid yet.");
 
-            return request.Product.Pharmacy != null &&
-                   request.Product.Pharmacy.PharmacistId == pharmacistId;
+            request.CollectedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Collection recorded successfully.";
+            return RedirectToAction(nameof(Index));
         }
     }
 }
