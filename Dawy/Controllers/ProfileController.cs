@@ -21,10 +21,16 @@ namespace Dawy.Controllers
         private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         // GET: /Profile
-        // Temporary: until role controllers exist, everyone goes to Home
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return RedirectToAction("Index", "Home");
+            var user = await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.UserId == CurrentUserId);
+
+            if (user == null)
+                return Challenge();
+
+            return View(user);
         }
 
         // GET: /Profile/Edit
@@ -47,7 +53,7 @@ namespace Dawy.Controllers
         public async Task<IActionResult> Edit(EditProfileViewModel model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return View(model);
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == CurrentUserId);
             if (user == null)

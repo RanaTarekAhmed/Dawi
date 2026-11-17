@@ -18,13 +18,14 @@ namespace Dawy.Controllers
             _context = context;
         }
 
-    
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             int beneficiaryId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
             var orders = await _context.Requests
                 .Include(r => r.Product)
+                    .ThenInclude(p => p.Pharmacy)
                 .Where(r => r.BeneficiaryId == beneficiaryId)
                 .OrderByDescending(r => r.RequestDate)
                 .ToListAsync();
@@ -32,6 +33,7 @@ namespace Dawy.Controllers
             return View(orders);
         }
 
+        [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -41,6 +43,7 @@ namespace Dawy.Controllers
 
             var order = await _context.Requests
                 .Include(r => r.Product)
+                    .ThenInclude(p => p.Pharmacy)
                 .Include(r => r.Beneficiary)
                 .FirstOrDefaultAsync(r =>
                     r.RequestId == id &&
@@ -63,7 +66,7 @@ namespace Dawy.Controllers
                 .FirstOrDefaultAsync(p => p.ProductId == id);
 
             if (product == null ||
-                (product.Status != "Approved" && product.Status != "مقبول") ||
+                product.Status != ProductStatus.Approved ||
                 product.Quantity <= 0 ||
                 product.ExpiryDate <= DateOnly.FromDateTime(DateTime.Today))
             {
@@ -94,7 +97,7 @@ namespace Dawy.Controllers
             if (product == null)
                 return NotFound();
 
-            if (product.Status != "Approved" && product.Status != "مقبول")
+            if (product.Status != ProductStatus.Approved)
                 return BadRequest("This product is not available.");
 
             if (product.ExpiryDate <= DateOnly.FromDateTime(DateTime.Today))
@@ -110,7 +113,7 @@ namespace Dawy.Controllers
                 BeneficiaryId = beneficiaryId,
                 ProductId = productId,
                 RequestedQuantity = quantity,
-                RequestDate = DateTime.Now,
+                RequestDate = DateTime.UtcNow,
                 FeeAmount = 0,
                 IsPaid = false
             };
@@ -140,7 +143,7 @@ namespace Dawy.Controllers
             if (order == null)
                 return NotFound();
 
-            if (order.CollectionDate != null || order.IsPaid)
+            if (order.CollectionDate != null || order.IsPaid || order.RejectionReason != null)
                 return BadRequest("This order cannot be cancelled.");
 
             order.Product.Quantity += order.RequestedQuantity;
