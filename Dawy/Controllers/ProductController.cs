@@ -10,6 +10,7 @@ namespace Dawy.Controllers
 {
     public class ProductController : Controller
     {
+        private const int MaxReasonLength = 500;
         private static readonly string[] ProhibitedKeywords = { "انسولين", "أنسولين", "insulin", "مطعوم", "لقاح", "vaccine" };
 
         private readonly DawiContext _context;
@@ -155,17 +156,26 @@ namespace Dawy.Controllers
         }
 
         // POST: /Product/Reject/5
+
         [HttpPost]
         [Authorize(Roles = Roles.Pharmacist)]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Reject(int id)
+        public async Task<IActionResult> Reject(int id, string? reason = null)
         {
+            reason = string.IsNullOrWhiteSpace(reason) ? null : reason.Trim();
+
+            if (reason?.Length > MaxReasonLength)
+            {
+                TempData["Error"] = $"The rejection reason must not exceed {MaxReasonLength} characters.";
+                return RedirectToAction(nameof(Incoming));
+            }
+
             var product = await GetMyPendingProductAsync(id);
             if (product == null)
                 return NotFound();
 
-            product.Status = ProductStatus.Rejected;
-            await _context.SaveChangesAsync();
+            if (!await SetPendingStatusAsync(id, ProductStatus.Rejected, reason))
+                TempData["Error"] = "This donation was already processed.";
 
             return RedirectToAction(nameof(Incoming));
         }
@@ -196,6 +206,17 @@ namespace Dawy.Controllers
                 && p.Status == ProductStatus.Pending
                 && p.PharmacyId.HasValue
                 && pharmacyIds.Contains(p.PharmacyId.Value));
+        }
+
+        private async Task<bool> SetPendingStatusAsync(int id, string status, string? reason)
+        {
+            var changed = await _context.Products
+                .Where(p => p.ProductId == id && p.Status == ProductStatus.Pending)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(p => p.Status, status)
+                    .SetProperty(p => p.RejectionReason, reason));
+
+            return changed > 0;
         }
     }
 }
