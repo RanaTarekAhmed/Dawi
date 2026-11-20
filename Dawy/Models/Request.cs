@@ -13,6 +13,7 @@ namespace Dawy.Models
         public Product Product { get; set; } = null!;
         public string? PrescriptionImageUrl { get; set; }
 
+        public string Status { get; set; } = RequestStatus.Pending;
         public DateTime RequestDate { get; set; }
         public int RequestedQuantity { get; set; }
         public DateTime? CollectionDate { get; set; }

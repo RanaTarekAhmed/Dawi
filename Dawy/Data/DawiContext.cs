@@ -28,11 +28,12 @@ namespace Dawy.Data
 
                 entity.Property(u => u.FullName).IsRequired().HasMaxLength(150);
                 entity.Property(u => u.Email).IsRequired().HasMaxLength(200);
-                entity.Property(u => u.PasswordHash).IsRequired();
+                entity.Property(u => u.PasswordHash).IsRequired().HasMaxLength(500);
                 entity.Property(u => u.PhoneNumber).HasMaxLength(20);
                 entity.Property(u => u.Role).IsRequired().HasMaxLength(30);
                 entity.Property(u => u.NationalId).IsRequired().HasMaxLength(14);
                 entity.Property(u => u.IsActive).IsRequired();
+                entity.Property(u => u.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
 
                 entity.HasIndex(u => u.Email).IsUnique();
                 entity.HasIndex(u => u.NationalId).IsUnique();
@@ -44,6 +45,7 @@ namespace Dawy.Data
                 entity.Property(n => n.Title).IsRequired().HasMaxLength(150);
                 entity.Property(n => n.Message).IsRequired().HasMaxLength(1000);
                 entity.Property(n => n.Link).HasMaxLength(500);
+                entity.Property(n => n.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
                 entity.HasOne(n => n.User).WithMany(u => u.Notifications)
                     .HasForeignKey(n => n.UserId).OnDelete(DeleteBehavior.Cascade);
                 entity.HasIndex(n => new { n.UserId, n.IsRead, n.CreatedAt });
@@ -86,6 +88,10 @@ namespace Dawy.Data
                 entity.Property(p => p.Category).IsRequired().HasMaxLength(100);
                 entity.Property(p => p.Status).IsRequired().HasMaxLength(30);
                 entity.Property(p => p.ProductImageUrl).HasMaxLength(500);
+                entity.Property(p => p.RejectionReason).HasMaxLength(500);
+                entity.HasIndex(p => p.Status);
+                entity.Property(p => p.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+               
 
                 // المتبرع -> المنتجات اللي تبرع بيها
                 entity.HasOne(p => p.Donor)
@@ -106,12 +112,19 @@ namespace Dawy.Data
                 entity.HasKey(r => r.RequestId);
 
                 entity.Property(r => r.PrescriptionImageUrl).HasMaxLength(500);
+                entity.Property(r => r.Status).IsRequired().HasMaxLength(30);
+                entity.Property(r => r.RejectionReason).HasMaxLength(500);
+                entity.Property(r => r.FeeAmount).HasPrecision(18, 2);
+                entity.Property(r => r.RequestDate).HasDefaultValueSql("GETUTCDATE()");
+                entity.ToTable(t => t.HasCheckConstraint("CK_Request_RequestedQuantity", "[RequestedQuantity] > 0"));
+                entity.HasIndex(r => new { r.BeneficiaryId, r.Status });
 
                 // المستفيد -> طلباته
                 entity.HasOne(r => r.Beneficiary)
                       .WithMany(u => u.Requests)
                       .HasForeignKey(r => r.BeneficiaryId)
                       .OnDelete(DeleteBehavior.Restrict);
+
 
                 // المنتج -> طلباته
                 entity.HasOne(r => r.Product)

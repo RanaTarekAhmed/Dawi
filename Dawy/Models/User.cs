@@ -1,14 +1,20 @@
-﻿namespace Dawy.Models
+﻿
+using System.ComponentModel.DataAnnotations;
+namespace Dawy.Models
 {
     public class User
     {
         public int UserId { get; set; }
         public string FullName { get; set; } = string.Empty;
+        [EmailAddress]
         public string Email { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
         public string? PhoneNumber { get; set; }
         public string Role { get; set; } = string.Empty;
-        public string NationalId { get; set; } = string.Empty;   // يُفضل تشفيره
+
+
+        [RegularExpression(@"^\d{14}$", ErrorMessage = "الرقم القومي لازم يكون 14 رقم")]
+        public string NationalId { get; set; } = string.Empty;  
         public DateTime CreatedAt { get; set; }
         public bool IsActive { get; set; } = true;
 
