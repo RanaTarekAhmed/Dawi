@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Dawy.Data;
 using Dawy.Models;
 using Dawy.ViewModels;
@@ -18,9 +18,6 @@ namespace Dawy.Controllers
             _context = context;
         }
 
-        //                    المستفيد
-
-
         // GET: /Request/Create?productId=5
         [HttpGet]
         [Authorize(Roles = Roles.Beneficiary)]
@@ -30,12 +27,15 @@ namespace Dawy.Controllers
             if (product == null)
                 return NotFound();
 
+            ViewBag.Product = product;
+
             return View(new RequestViewModel
             {
                 ProductId = product.ProductId,
                 ProductName = product.ProductName,
                 Category = product.Category,
-                AvailableQuantity = product.Quantity
+                AvailableQuantity = product.Quantity,
+                Quantity = 1
             });
         }
 
@@ -49,14 +49,18 @@ namespace Dawy.Controllers
             if (product == null)
                 return NotFound();
 
+            // The view needs the product again whenever validation fails.
+            ViewBag.Product = product;
             model.ProductName = product.ProductName;
             model.Category = product.Category;
             model.AvailableQuantity = product.Quantity;
 
-            // صورة الروشتة مطلوبة فقط لو فئة المنتج "أدوية" واختيارية لباقي الفئات
-            if (product.Category == "أدوية" && string.IsNullOrWhiteSpace(model.PrescriptionImageUrl))
+            if (product.Category == "أدوية" &&
+                string.IsNullOrWhiteSpace(model.PrescriptionImageUrl))
             {
-                ModelState.AddModelError(nameof(model.PrescriptionImageUrl), "صورة الروشتة مطلوبة للأدوية.");
+                ModelState.AddModelError(
+                    nameof(model.PrescriptionImageUrl),
+                    "صورة الروشتة مطلوبة للأدوية.");
             }
 
             if (!ModelState.IsValid)
@@ -64,35 +68,50 @@ namespace Dawy.Controllers
 
             if (model.Quantity > product.Quantity)
             {
-                ModelState.AddModelError(nameof(model.Quantity), "The requested quantity is more than the available quantity.");
+                ModelState.AddModelError(
+                    nameof(model.Quantity),
+                    "الكمية المطلوبة أكبر من الكمية المتاحة.");
                 return View(model);
             }
 
             var userId = GetCurrentUserId();
 
             var alreadyRequested = await _context.Requests.AnyAsync(r =>
-                r.ProductId == model.ProductId
-                && r.BeneficiaryId == userId
-                && r.RejectionReason == null);
+                r.ProductId == model.ProductId &&
+                r.BeneficiaryId == userId &&
+                (r.Status == RequestStatus.Pending ||
+                 r.Status == RequestStatus.Approved));
 
             if (alreadyRequested)
             {
-                ModelState.AddModelError(string.Empty, "You have already requested this product.");
+                ModelState.AddModelError(
+                    string.Empty,
+                    "لديك طلب قائم بالفعل على هذا المنتج.");
                 return View(model);
             }
 
-            var quantity = model.Quantity;
-
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
-            // خصم الكمية بشكل آمن: لو اتنين طلبوا آخر كمية مع بعض واحد بس ينجح
+            // Atomic stock reservation prevents two beneficiaries from taking the last quantity.
             var reserved = await _context.Products
-                .Where(p => p.ProductId == model.ProductId && p.Quantity >= quantity)
-                .ExecuteUpdateAsync(s => s.SetProperty(p => p.Quantity, p => p.Quantity - quantity));
+                .Where(p => p.ProductId == model.ProductId &&
+                            p.Status == ProductStatus.Approved &&
+                            p.Quantity >= model.Quantity)
+                .ExecuteUpdateAsync(update => update.SetProperty(
+                    p => p.Quantity, p => p.Quantity - model.Quantity));
 
             if (reserved == 0)
             {
-                ModelState.AddModelError(string.Empty, "Sorry, the requested quantity is no longer available.");
+                await transaction.RollbackAsync();
+                ModelState.AddModelError(
+                    nameof(model.Quantity),
+                    "عذراً، الكمية المطلوبة لم تعد متاحة.");
+                product = await GetAvailableProductAsync(model.ProductId);
+                if (product == null)
+                    return NotFound();
+
+                ViewBag.Product = product;
+                model.AvailableQuantity = product.Quantity;
                 return View(model);
             }
 
@@ -100,9 +119,10 @@ namespace Dawy.Controllers
             {
                 BeneficiaryId = userId,
                 ProductId = model.ProductId,
-                RequestedQuantity = quantity,
+                RequestedQuantity = model.Quantity,
                 PrescriptionImageUrl = model.PrescriptionImageUrl,
                 RequestDate = DateTime.UtcNow,
+                Status = RequestStatus.Pending,
                 FeeAmount = 0,
                 IsPaid = false
             });
@@ -110,17 +130,19 @@ namespace Dawy.Controllers
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            TempData["Success"] = "Your request has been submitted successfully.";
+            TempData["Success"] = "تم إرسال طلبك بنجاح.";
             return RedirectToAction(nameof(MyRequests));
         }
 
         // GET: /Request/MyRequests
+        [HttpGet]
         [Authorize(Roles = Roles.Beneficiary)]
         public async Task<IActionResult> MyRequests()
         {
             var userId = GetCurrentUserId();
 
             var requests = await _context.Requests
+                .AsNoTracking()
                 .Include(r => r.Product)
                     .ThenInclude(p => p.Pharmacy)
                 .Where(r => r.BeneficiaryId == userId)
@@ -139,76 +161,82 @@ namespace Dawy.Controllers
             var userId = GetCurrentUserId();
 
             var request = await _context.Requests
-                .FirstOrDefaultAsync(r => r.RequestId == id && r.BeneficiaryId == userId);
+                .FirstOrDefaultAsync(r =>
+                    r.RequestId == id && r.BeneficiaryId == userId);
 
             if (request == null)
                 return NotFound();
 
-            // مينفعش يتلغي لو اتسلّم أو اتدفع أو اترفض
-            if (request.CollectionDate != null || request.IsPaid || request.RejectionReason != null)
+            if ((request.Status != RequestStatus.Pending &&
+                 request.Status != RequestStatus.Approved) ||
+                request.CollectionDate != null ||
+                request.CollectedAt != null ||
+                request.IsPaid)
             {
-                TempData["Error"] = "This request cannot be cancelled.";
+                TempData["Error"] = "لا يمكن إلغاء هذا الطلب.";
                 return RedirectToAction(nameof(MyRequests));
             }
 
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
-            _context.Requests.Remove(request);
-            await _context.SaveChangesAsync();
-
+            request.Status = RequestStatus.Cancelled;
             await ReturnToStockAsync(request.ProductId, request.RequestedQuantity);
 
+            await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            TempData["Success"] = "The request has been cancelled.";
+            TempData["Success"] = "تم إلغاء الطلب وإرجاع الكمية للمخزون.";
             return RedirectToAction(nameof(MyRequests));
         }
 
-
-        //                      الصيدلي
-
-
         // GET: /Request/PharmacyRequests
+        [HttpGet]
         [Authorize(Roles = Roles.Pharmacist)]
         public async Task<IActionResult> PharmacyRequests()
         {
             var pharmacyIds = await GetMyPharmacyIdsAsync();
 
             var requests = await _context.Requests
+                .AsNoTracking()
                 .Include(r => r.Product)
+                    .ThenInclude(p => p.Pharmacy)
                 .Include(r => r.Beneficiary)
-                .Where(r => r.Product.PharmacyId.HasValue
-                         && pharmacyIds.Contains(r.Product.PharmacyId.Value))
+                .Where(r => r.Product.PharmacyId.HasValue &&
+                            pharmacyIds.Contains(r.Product.PharmacyId.Value))
                 .OrderByDescending(r => r.RequestDate)
                 .ToListAsync();
 
             return View(requests);
         }
 
-        // POST: /Request/Collect/5  (تأكيد إن المستفيد استلم الدواء)
+        // POST: /Request/ConfirmPickup/5
         [HttpPost]
         [Authorize(Roles = Roles.Pharmacist)]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Collect(int id)
+        public async Task<IActionResult> ConfirmPickup(int id)
         {
             var request = await GetMyPharmacyRequestAsync(id);
             if (request == null)
                 return NotFound();
 
-            if (request.RejectionReason != null || request.CollectionDate != null)
+            if (request.Status != RequestStatus.Approved &&
+                request.Status != RequestStatus.Pending)
             {
-                TempData["Error"] = "This request cannot be marked as collected.";
+                TempData["Error"] = "لا يمكن تأكيد استلام هذا الطلب.";
                 return RedirectToAction(nameof(PharmacyRequests));
             }
 
+            request.Status = RequestStatus.Collected;
             request.CollectionDate = DateTime.UtcNow;
+            request.CollectedAt = request.CollectionDate;
+
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "The collection has been recorded.";
+            TempData["Success"] = "تم تأكيد تسليم الطلب للمستفيد.";
             return RedirectToAction(nameof(PharmacyRequests));
         }
 
-        // POST: /Request/Reject/5  (رفض الطلب بسبب)
+        // POST: /Request/Reject/5
         [HttpPost]
         [Authorize(Roles = Roles.Pharmacist)]
         [ValidateAntiForgeryToken]
@@ -216,7 +244,7 @@ namespace Dawy.Controllers
         {
             if (string.IsNullOrWhiteSpace(reason))
             {
-                TempData["Error"] = "Please enter the rejection reason.";
+                TempData["Error"] = "يرجى كتابة سبب الرفض.";
                 return RedirectToAction(nameof(PharmacyRequests));
             }
 
@@ -224,26 +252,36 @@ namespace Dawy.Controllers
             if (request == null)
                 return NotFound();
 
-            if (request.RejectionReason != null || request.CollectionDate != null)
+            if (request.Status != RequestStatus.Pending &&
+                request.Status != RequestStatus.Approved)
             {
-                TempData["Error"] = "This request cannot be rejected.";
+                TempData["Error"] = "لا يمكن رفض هذا الطلب.";
                 return RedirectToAction(nameof(PharmacyRequests));
             }
 
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
-            request.RejectionReason = reason.Trim();
-            await _context.SaveChangesAsync();
+            var cleanReason = reason.Trim();
+            request.Status = RequestStatus.Rejected;
+            request.RejectionReason = cleanReason;
 
             await ReturnToStockAsync(request.ProductId, request.RequestedQuantity);
 
+            _context.Notifications.Add(new Notification
+            {
+                UserId = request.BeneficiaryId,
+                Title = "تم رفض طلبك",
+                Message = $"تم رفض طلبك للمنتج '{request.Product.ProductName}'. السبب: {cleanReason}",
+                Link = "/Request/MyRequests",
+                CreatedAt = DateTime.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            TempData["Success"] = "The request has been rejected.";
+            TempData["Success"] = "تم رفض الطلب وإرجاع الكمية للمخزون وإرسال إشعار للمستفيد.";
             return RedirectToAction(nameof(PharmacyRequests));
         }
-
-        // ---------------------- Helpers ----------------------
 
         private int GetCurrentUserId()
         {
@@ -254,11 +292,13 @@ namespace Dawy.Controllers
         {
             var today = DateOnly.FromDateTime(DateTime.Today);
 
-            return await _context.Products.AsNoTracking().FirstOrDefaultAsync(p =>
-                p.ProductId == productId
-                && p.Status == ProductStatus.Approved
-                && p.Quantity > 0
-                && p.ExpiryDate >= today);
+            return await _context.Products
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p =>
+                    p.ProductId == productId &&
+                    p.Status == ProductStatus.Approved &&
+                    p.Quantity > 0 &&
+                    p.ExpiryDate >= today);
         }
 
         private async Task<List<int>> GetMyPharmacyIdsAsync()
@@ -271,7 +311,6 @@ namespace Dawy.Controllers
                 .ToListAsync();
         }
 
-        // الطلب لازم يكون على دواء تابع لصيدلية الصيدلي ده
         private async Task<Request?> GetMyPharmacyRequestAsync(int requestId)
         {
             var pharmacyIds = await GetMyPharmacyIdsAsync();
@@ -279,16 +318,17 @@ namespace Dawy.Controllers
             return await _context.Requests
                 .Include(r => r.Product)
                 .FirstOrDefaultAsync(r =>
-                    r.RequestId == requestId
-                    && r.Product.PharmacyId.HasValue
-                    && pharmacyIds.Contains(r.Product.PharmacyId.Value));
+                    r.RequestId == requestId &&
+                    r.Product.PharmacyId.HasValue &&
+                    pharmacyIds.Contains(r.Product.PharmacyId.Value));
         }
 
         private async Task ReturnToStockAsync(int productId, int quantity)
         {
             await _context.Products
                 .Where(p => p.ProductId == productId)
-                .ExecuteUpdateAsync(s => s.SetProperty(p => p.Quantity, p => p.Quantity + quantity));
+                .ExecuteUpdateAsync(update => update.SetProperty(
+                    p => p.Quantity, p => p.Quantity + quantity));
         }
     }
 }
