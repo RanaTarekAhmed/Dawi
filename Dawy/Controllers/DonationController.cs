@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Dawy.Data;
 using Dawy.Models;
 using Dawy.ViewModels;
@@ -60,6 +60,7 @@ namespace Dawy.Controllers
 
         // GET: /Donation/Details/5
         [HttpGet]
+        [Authorize(Roles = Roles.Donor + "," + Roles.Admin)]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
