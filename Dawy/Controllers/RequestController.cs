@@ -1,3 +1,4 @@
+
 using System.Security.Claims;
 using Dawy.Data;
 using Dawy.Models;
@@ -12,10 +13,12 @@ namespace Dawy.Controllers
     public class RequestController : Controller
     {
         private readonly DawiContext _context;
+        private readonly IWebHostEnvironment _environment;
 
-        public RequestController(DawiContext context)
+        public RequestController(DawiContext context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
         // GET: /Request/Create?productId=5
@@ -49,18 +52,41 @@ namespace Dawy.Controllers
             if (product == null)
                 return NotFound();
 
-            // The view needs the product again whenever validation fails.
+            // The view needs the product again whenever validation fails
             ViewBag.Product = product;
             model.ProductName = product.ProductName;
             model.Category = product.Category;
             model.AvailableQuantity = product.Quantity;
 
             if (product.Category == "أدوية" &&
+                model.PrescriptionImage == null &&
                 string.IsNullOrWhiteSpace(model.PrescriptionImageUrl))
             {
                 ModelState.AddModelError(
-                    nameof(model.PrescriptionImageUrl),
+                    nameof(model.PrescriptionImage),
                     "صورة الروشتة مطلوبة للأدوية.");
+            }
+
+            // Validate the uploaded prescription image
+            if (model.PrescriptionImage != null)
+            {
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+                var extension = Path.GetExtension(model.PrescriptionImage.FileName)
+                    .ToLowerInvariant();
+
+                if (!allowedExtensions.Contains(extension))
+                {
+                    ModelState.AddModelError(
+                        nameof(model.PrescriptionImage),
+                        "يسمح فقط بملفات JPG أو JPEG أو PNG أو WEBP.");
+                }
+
+                if (model.PrescriptionImage.Length > 5 * 1024 * 1024)
+                {
+                    ModelState.AddModelError(
+                        nameof(model.PrescriptionImage),
+                        "حجم صورة الروشتة يجب ألا يتجاوز 5 ميجابايت.");
+                }
             }
 
             if (!ModelState.IsValid)
@@ -92,7 +118,7 @@ namespace Dawy.Controllers
 
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
-            // Atomic stock reservation prevents two beneficiaries from taking the last quantity.
+            // Atomic stock reservation prevents two beneficiaries from taking the last quantity
             var reserved = await _context.Products
                 .Where(p => p.ProductId == model.ProductId &&
                             p.Status == ProductStatus.Approved &&
@@ -106,6 +132,7 @@ namespace Dawy.Controllers
                 ModelState.AddModelError(
                     nameof(model.Quantity),
                     "عذراً، الكمية المطلوبة لم تعد متاحة.");
+
                 product = await GetAvailableProductAsync(model.ProductId);
                 if (product == null)
                     return NotFound();
@@ -113,6 +140,27 @@ namespace Dawy.Controllers
                 ViewBag.Product = product;
                 model.AvailableQuantity = product.Quantity;
                 return View(model);
+            }
+
+            // Save prescription image to wwwroot/uploads/prescriptions
+            if (model.PrescriptionImage != null)
+            {
+                var uploadsFolder = Path.Combine(
+                    _environment.WebRootPath,
+                    "uploads",
+                    "prescriptions");
+
+                Directory.CreateDirectory(uploadsFolder);
+
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(model.PrescriptionImage.FileName)}";
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                await using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await model.PrescriptionImage.CopyToAsync(stream);
+                }
+
+                model.PrescriptionImageUrl = $"/uploads/prescriptions/{fileName}";
             }
 
             _context.Requests.Add(new Request
@@ -191,18 +239,28 @@ namespace Dawy.Controllers
 
         // GET: /Request/PharmacyRequests
         [HttpGet]
-        [Authorize(Roles = Roles.Pharmacist)]
+        [Authorize(Roles = Roles.Pharmacist + "," + Roles.Admin)]
         public async Task<IActionResult> PharmacyRequests()
         {
-            var pharmacyIds = await GetMyPharmacyIdsAsync();
-
-            var requests = await _context.Requests
+            var requestsQuery = _context.Requests
                 .AsNoTracking()
                 .Include(r => r.Product)
                     .ThenInclude(p => p.Pharmacy)
                 .Include(r => r.Beneficiary)
-                .Where(r => r.Product.PharmacyId.HasValue &&
-                            pharmacyIds.Contains(r.Product.PharmacyId.Value))
+                .AsQueryable();
+
+            // Admin can view requests from all pharmacies.
+            // Pharmacist can only view requests from their own pharmacies.
+            if (!User.IsInRole(Roles.Admin))
+            {
+                var pharmacyIds = await GetMyPharmacyIdsAsync();
+
+                requestsQuery = requestsQuery.Where(r =>
+                    r.Product.PharmacyId.HasValue &&
+                    pharmacyIds.Contains(r.Product.PharmacyId.Value));
+            }
+
+            var requests = await requestsQuery
                 .OrderByDescending(r => r.RequestDate)
                 .ToListAsync();
 
@@ -211,7 +269,7 @@ namespace Dawy.Controllers
 
         // POST: /Request/ConfirmPickup/5
         [HttpPost]
-        [Authorize(Roles = Roles.Pharmacist)]
+        [Authorize(Roles = Roles.Pharmacist + "," + Roles.Admin)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmPickup(int id)
         {
@@ -238,7 +296,7 @@ namespace Dawy.Controllers
 
         // POST: /Request/Reject/5
         [HttpPost]
-        [Authorize(Roles = Roles.Pharmacist)]
+        [Authorize(Roles = Roles.Pharmacist + "," + Roles.Admin)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reject(int id, string reason)
         {
@@ -313,10 +371,22 @@ namespace Dawy.Controllers
 
         private async Task<Request?> GetMyPharmacyRequestAsync(int requestId)
         {
+            // Admin can access requests from all pharmacies.
+            if (User.IsInRole(Roles.Admin))
+            {
+                return await _context.Requests
+                    .Include(r => r.Product)
+                    .ThenInclude(p => p.Pharmacy)
+                    .Include(r => r.Beneficiary)
+                    .FirstOrDefaultAsync(r => r.RequestId == requestId);
+            }
+
             var pharmacyIds = await GetMyPharmacyIdsAsync();
 
             return await _context.Requests
                 .Include(r => r.Product)
+                .ThenInclude(p => p.Pharmacy)
+                .Include(r => r.Beneficiary)
                 .FirstOrDefaultAsync(r =>
                     r.RequestId == requestId &&
                     r.Product.PharmacyId.HasValue &&
