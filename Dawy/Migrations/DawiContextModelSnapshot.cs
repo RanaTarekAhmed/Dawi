@@ -72,7 +72,9 @@ namespace Dawy.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NotificationId"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<bool>("IsRead")
                         .HasColumnType("bit");
@@ -155,7 +157,9 @@ namespace Dawy.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<int>("DonorId")
                         .HasColumnType("int");
@@ -178,6 +182,10 @@ namespace Dawy.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -188,6 +196,8 @@ namespace Dawy.Migrations
                     b.HasIndex("DonorId");
 
                     b.HasIndex("PharmacyId");
+
+                    b.HasIndex("Status");
 
                     b.ToTable("Products");
                 });
@@ -210,6 +220,7 @@ namespace Dawy.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("FeeAmount")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsPaid")
@@ -223,21 +234,32 @@ namespace Dawy.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("RejectionReason")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<DateTime>("RequestDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<int>("RequestedQuantity")
                         .HasColumnType("int");
 
-                    b.HasKey("RequestId");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
-                    b.HasIndex("BeneficiaryId");
+                    b.HasKey("RequestId");
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Requests");
+                    b.HasIndex("BeneficiaryId", "Status");
+
+                    b.ToTable("Requests", t =>
+                        {
+                            t.HasCheckConstraint("CK_Request_RequestedQuantity", "[RequestedQuantity] > 0");
+                        });
                 });
 
             modelBuilder.Entity("Dawy.Models.User", b =>
@@ -249,7 +271,9 @@ namespace Dawy.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -271,7 +295,8 @@ namespace Dawy.Migrations
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(20)
