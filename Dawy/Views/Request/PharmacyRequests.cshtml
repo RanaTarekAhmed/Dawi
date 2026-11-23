@@ -1,1 +1,124 @@
-﻿
+﻿@model IEnumerable<Dawy.Models.Request>
+
+@{
+    ViewData["Title"] = "طلبات الصيدلية";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">طلبات الصيدلية الواردة</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>اسم المستفيد</th>
+                        <th>رقم الهاتف</th>
+                        <th>صورة الروشتة</th>
+                        <th>الكمية</th>
+                        <th>تاريخ الطلب</th>
+                        <th>الحالة</th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var req in Model)
+                    {
+                        <tr>
+                            <td>@req.Beneficiary?.FullName</td>
+                            <td>@req.Beneficiary?.PhoneNumber</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(req.PrescriptionImageUrl))
+                                {
+                                    <a href="@req.PrescriptionImageUrl" target="_blank" class="btn btn-sm btn-outline-primary">عرض الروشتة</a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">لا يوجد</span>
+                                }
+                            </td>
+                            <td>@req.RequestedQuantity</td>
+                            <td>@req.RequestDate.ToString("yyyy-MM-dd")</td>
+                            <td>
+                                <span class="badge bg-@(req.Status.ToString() switch
+                                      {
+                                          "Pending" => "warning text-dark",
+                                          "Approved" => "success",
+                                          "Rejected" => "danger",
+                                          "Collected" => "info",
+                                          _ => "secondary"
+                                      })">@req.Status.ToString()</span>
+                            </td>
+                            <td>
+                                @if (req.Status.ToString() == "Pending" || req.Status.ToString() == "Approved")
+                                {
+                                    <!-- زر تأكيد التسليم -->
+                                    <form asp-action="ConfirmPickup" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@req.RequestId" />
+                                        <button type="submit" class="btn btn-sm btn-success"
+                                                onclick="return confirm('تأكيد تسليم الدواء للمستفيد؟')">
+                                            تسليم
+                                        </button>
+                                    </form>
+
+                                    <!-- زر الرفض -->
+                                    <button type="button" class="btn btn-sm btn-danger"
+                                            data-bs-toggle="modal" data-bs-target="#rejectModal-@req.RequestId">
+                                        رفض
+                                    </button>
+
+                                    <!-- Modal للرفض -->
+                                    <div class="modal fade" id="rejectModal-@req.RequestId" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <form asp-action="Reject" method="post">
+                                                    @Html.AntiForgeryToken()
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">سبب الرفض</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <input type="hidden" name="id" value="@req.RequestId" />
+                                                        <textarea name="reason" class="form-control" rows="3" required placeholder="اكتب سبب الرفض هنا..."></textarea>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                                                        <button type="submit" class="btn btn-danger">تأكيد الرفض</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">لا توجد طلبات واردة للصيدلية.</div>
+    }
+</div>
+
+<!-- تأكد من أن Bootstrap JS مُفعّل في مشروعك عشان الـ Modal يشتغل -->

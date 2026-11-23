@@ -16,6 +16,10 @@ namespace Dawy.ViewModels
         public int Quantity { get; set; } = 1;
 
         [Url(ErrorMessage = "The link is not valid.")]
+
+        [Display(Name = "صورة الروشتة")]
+        public IFormFile? PrescriptionImage { get; set; }
+        [Url(ErrorMessage = "The link is not valid.")]
         public string? PrescriptionImageUrl { get; set; }
     }
 }

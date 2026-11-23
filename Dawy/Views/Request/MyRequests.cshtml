@@ -1,1 +1,84 @@
-﻿
+﻿@model IEnumerable<Dawy.Models.Request>
+
+@{
+    ViewData["Title"] = "طلباتي";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">طلباتي</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>الدواء</th>
+                        <th>الصيدلية</th>
+                        <th>الكمية</th>
+                        <th>تاريخ الطلب</th>
+                        <th>الحالة</th>
+                        <th>سبب الرفض</th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var req in Model)
+                    {
+                        <tr>
+                            <td>@req.Product?.ProductName</td>
+                            <td>@req.Product?.Pharmacy?.PharmacyName</td>
+                            <td>@req.RequestedQuantity</td>
+                            <td>@req.RequestDate.ToString("yyyy-MM-dd")</td>
+                            <td>
+                                <span class="badge bg-@(req.Status.ToString() switch
+                                      {
+                                          "Pending" => "warning text-dark",
+                                          "Approved" => "success",
+                                          "Rejected" => "danger",
+                                          "Cancelled" => "secondary",
+                                          "Collected" => "info",
+                                          _ => "light"
+                                      })">@req.Status.ToString()</span>
+                            </td>
+                            <td><small class="text-muted">@(req.RejectionReason ?? "-")</small></td>
+                            <td>
+                                @if (req.Status.ToString() == "Pending" || req.Status.ToString() == "Approved")
+                                {
+                                    <form asp-action="Cancel" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@req.RequestId" />
+                                        <button type="submit" class="btn btn-sm btn-danger"
+                                                onclick="return confirm('هل أنت متأكد من إلغاء الطلب؟ سيتم إرجاع الكمية للمخزون.')">
+                                            إلغاء الطلب
+                                        </button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">لا توجد طلبات حتى الآن.</div>
+    }
+</div>

@@ -379,6 +379,7 @@ namespace Dawy.Controllers
                     .ThenInclude(p => p.Pharmacy)
                     .Include(r => r.Beneficiary)
                     .FirstOrDefaultAsync(r => r.RequestId == requestId);
+             
             }
 
             var pharmacyIds = await GetMyPharmacyIdsAsync();
