@@ -1,0 +1,127 @@
+﻿@model IEnumerable<Dawy.Models.Request>
+@{
+    ViewData["Title"] = "المدفوعات ورسوم الاستلام";
+    var list = Model.ToList();
+    var unpaidList = list.Where(r => !r.IsPaid && r.RejectionReason == null && r.CollectedAt == null).ToList();
+    var paidCount = list.Count(r => r.IsPaid);
+    var totalDue = unpaidList.Sum(r => r.FeeAmount);
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h3 class="fw-bold text-teal mb-1"><i class="bi bi-credit-card-2-front me-1"></i> المدفوعات ورسوم الاستلام</h3>
+        <p class="text-muted small mb-0">متابعة ودفع رسوم استلام الأدوية المقررة من الصيدليات</p>
+    </div>
+    <a asp-controller="Category" asp-action="Index" class="btn btn-outline-teal btn-sm">
+        <i class="bi bi-capsule"></i> تصفح الأدوية
+    </a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success rounded-3 mb-3">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger rounded-3 mb-3">@TempData["ErrorMessage"]</div>
+}
+
+<!-- كروت ملخص المدفوعات -->
+<div class="row g-3 mb-4 text-center">
+    <div class="col-md-4">
+        <div class="dawy-card p-3">
+            <div class="text-muted small">إجمالي المبلغ المستحق حالياً</div>
+            <h3 class="fw-bold text-warning mt-1 mb-0">@totalDue.ToString("0.00") ج.م</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="dawy-card p-3">
+            <div class="text-muted small">طلبات بانتظار الدفع</div>
+            <h3 class="fw-bold text-teal mt-1 mb-0">@unpaidList.Count</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="dawy-card p-3">
+            <div class="text-muted small">مدفوعات مكتملة</div>
+            <h3 class="fw-bold text-success mt-1 mb-0">@paidCount</h3>
+        </div>
+    </div>
+</div>
+
+<div class="dawy-card p-4">
+    @if (!list.Any())
+    {
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-wallet2 fs-1 d-block mb-2 text-teal"></i>
+            لا توجد أي رسوم مستحقة عليك حالياً.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>الدواء</th>
+                        <th>الكمية</th>
+                        <th>موعد الاستلام</th>
+                        <th>الرسوم</th>
+                        <th>الحالة</th>
+                        <th class="text-center">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in list)
+                    {
+                        var canPay = !item.IsPaid
+                                     && item.RejectionReason == null
+                                     && item.CollectionDate != null
+                                     && item.CollectedAt == null
+                                     && item.FeeAmount > 0;
+                        <tr>
+                            <td class="fw-bold">@item.Product?.ProductName</td>
+                            <td>@item.RequestedQuantity عبوة</td>
+                            <td>
+                                @if (item.CollectionDate.HasValue)
+                                {
+                                    <span dir="ltr">@item.CollectionDate.Value.ToString("yyyy/MM/dd HH:mm")</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">بانتظار الجدولة</span>
+                                }
+                            </td>
+                            <td class="fw-bold text-teal">@item.FeeAmount.ToString("0.00") ج.م</td>
+                            <td>
+                                @if (item.RejectionReason != null)
+                                {
+                                    <span class="badge-rejected">طلب مرفوض</span>
+                                }
+                                else if (item.IsPaid)
+                                {
+                                    <span class="badge-approved">تم الدفع</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-pending">غير مدفوع</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <div class="d-inline-flex gap-2">
+                                    <a asp-action="Details" asp-route-id="@item.RequestId" class="btn btn-outline-teal btn-sm">تفاصيل</a>
+                                    @if (canPay)
+                                    {
+                                        <form asp-action="Pay" asp-route-id="@item.RequestId" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-teal btn-sm">ادفع الآن</button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

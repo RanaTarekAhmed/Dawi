@@ -41,6 +41,7 @@ namespace Dawy.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var requests = await ManageableRequests()
@@ -52,6 +53,7 @@ namespace Dawy.Controllers
             return View(requests);
         }
 
+        [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -72,19 +74,20 @@ namespace Dawy.Controllers
         public async Task<IActionResult> Schedule(int id, DateTime collectionDate, decimal fee)
         {
             if (collectionDate <= DateTime.Now)
-                return Back("The collection date must be in the future.");
+                return Back("يجب أن يكون موعد الاستلام في المستقبل.");
 
             if (fee < 0)
-                return Back("The fee cannot be negative.");
+                return Back("لا يمكن أن تكون الرسوم قيمة سالبة.");
 
             var request = await ManageableRequests().FirstOrDefaultAsync(r => r.RequestId == id);
             if (request == null)
                 return NotFound();
 
             if (request.RejectionReason != null || request.CollectedAt != null)
-                return Back("The collection date of this request cannot be changed");
+                return Back("لا يمكن تعديل موعد الاستلام لهذا الطلب.");
 
             request.CollectionDate = collectionDate;
+            request.Status = RequestStatus.Approved;
 
             // مينفعش الرسوم تتغير بعد الدفع
             if (!request.IsPaid)
@@ -93,15 +96,15 @@ namespace Dawy.Controllers
             _context.Notifications.Add(new Notification
             {
                 UserId = request.BeneficiaryId,
-                Title = "Collection date set",
-                Message = $"Collection date for ({request.Product.ProductName}): {collectionDate:yyyy-MM-dd HH:mm}",
+                Title = "تم تحديد موعد الاستلام",
+                Message = $"موعد استلام ({request.Product.ProductName}): {collectionDate:yyyy-MM-dd HH:mm}",
                 Link = "/Request/MyRequests",
                 CreatedAt = DateTime.UtcNow
             });
 
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Collection date set successfully.";
+            TempData["SuccessMessage"] = "تم تحديد موعد الاستلام والرسوم بنجاح.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -114,15 +117,16 @@ namespace Dawy.Controllers
                 return NotFound();
 
             if (request.RejectionReason != null || request.CollectedAt != null)
-                return Back("The collection of this request cannot be confirmed.");
+                return Back("لا يمكن تأكيد استلام هذا الطلب.");
 
             if (request.FeeAmount > 0 && !request.IsPaid)
-                return Back("The fee has not been paid yet.");
+                return Back("لم يتم دفع الرسوم المطلوبة لهذا الطلب بعد.");
 
             request.CollectedAt = DateTime.UtcNow;
+            request.Status = RequestStatus.Collected;
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Collection recorded successfully.";
+            TempData["SuccessMessage"] = "تم تأكيد تسليم الدواء بنجاح.";
             return RedirectToAction(nameof(Index));
         }
     }

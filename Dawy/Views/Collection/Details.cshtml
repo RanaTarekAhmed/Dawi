@@ -1,0 +1,180 @@
+﻿@model Dawy.Models.Request
+@{
+    ViewData["Title"] = "تفاصيل وجدولة الاستلام";
+    var defaultDate = (Model.CollectionDate ?? DateTime.Now.AddDays(1)).ToString("yyyy-MM-ddTHH:mm");
+    var isEditable = Model.RejectionReason == null && Model.CollectedAt == null;
+    var canConfirm = isEditable && (Model.FeeAmount == 0 || Model.IsPaid);
+}
+
+<div class="row justify-content-center py-3">
+    <div class="col-12 col-lg-10">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success rounded-3 mb-3">@TempData["SuccessMessage"]</div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger rounded-3 mb-3">@TempData["ErrorMessage"]</div>
+        }
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="fw-bold text-teal mb-0">
+                <i class="bi bi-calendar2-check me-1"></i> تفاصيل طلب الاستلام #@Model.RequestId
+            </h4>
+            <a asp-action="Index" class="btn btn-outline-teal btn-sm">
+                <i class="bi bi-arrow-right"></i> عودة لقائمة الاستلام
+            </a>
+        </div>
+
+        <div class="row g-4">
+            <!-- بيانات الطلب والمستفيد -->
+            <div class="col-lg-7">
+                <div class="dawy-card p-4 h-100">
+                    <h5 class="fw-bold text-teal mb-3">بيانات الطلب</h5>
+                    <table class="table table-bordered align-middle mb-3">
+                        <tr>
+                            <th class="bg-light w-35">اسم الدواء</th>
+                            <td class="fw-bold">@Model.Product?.ProductName</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">الفئة</th>
+                            <td>@Model.Product?.Category</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">الكمية المطلوبة</th>
+                            <td>@Model.RequestedQuantity عبوة</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">الصيدلية</th>
+                            <td>@Model.Product?.Pharmacy?.PharmacyName</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">المستفيد</th>
+                            <td>
+                                <div class="fw-semibold">@Model.Beneficiary?.FullName</div>
+                                <small class="text-muted" dir="ltr">@Model.Beneficiary?.PhoneNumber</small>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">تاريخ الطلب</th>
+                            <td dir="ltr" style="text-align: right;">@Model.RequestDate.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">موعد الاستلام المحدد</th>
+                            <td>
+                                @if (Model.CollectionDate.HasValue)
+                                {
+                                    <span class="badge-approved" dir="ltr">@Model.CollectionDate.Value.ToString("yyyy/MM/dd HH:mm")</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-pending">لم يُحدد بعد</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">الرسوم وحالة الدفع</th>
+                            <td>
+                                @if (Model.FeeAmount <= 0)
+                                {
+                                    <span class="badge bg-light text-dark border">مجاني (0 ج.م)</span>
+                                }
+                                else if (Model.IsPaid)
+                                {
+                                    <span class="badge-approved">@Model.FeeAmount.ToString("0.00") ج.م — تم الدفع</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-pending">@Model.FeeAmount.ToString("0.00") ج.م — بانتظار الدفع</span>
+                                }
+                            </td>
+                        </tr>
+                    </table>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.PrescriptionImageUrl))
+                    {
+                        <div class="p-3 bg-light rounded-3">
+                            <div class="fw-bold small text-secondary mb-2">الروشتة الطبية المرفقة:</div>
+                            <a href="@Model.PrescriptionImageUrl" target="_blank" class="btn btn-sm btn-outline-teal">
+                                <i class="bi bi-file-earmark-medical"></i> فتح صورة الروشتة
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- إجراءات الصيدلي: الجدولة وتأكيد التسليم -->
+            <div class="col-lg-5">
+                @if (Model.CollectedAt != null)
+                {
+                    <div class="dawy-card p-4 text-center">
+                        <i class="bi bi-check-circle-fill text-success fs-1 d-block mb-2"></i>
+                        <h5 class="fw-bold text-success">تم تسليم الدواء بنجاح</h5>
+                        <p class="text-muted small mb-0" dir="ltr">@Model.CollectedAt.Value.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</p>
+                    </div>
+                }
+                else if (Model.RejectionReason != null)
+                {
+                    <div class="dawy-card p-4">
+                        <h5 class="fw-bold text-danger mb-2">الطلب مرفوض</h5>
+                        <p class="text-muted mb-0">السبب: @Model.RejectionReason</p>
+                    </div>
+                }
+                else
+                {
+                    <!-- فورم 1: تحديد موعد الاستلام والرسوم -->
+                    <div class="dawy-card p-4 mb-3">
+                        <h6 class="fw-bold text-teal mb-3">
+                            <i class="bi bi-clock-history me-1"></i> تحديد / تعديل موعد الاستلام والرسوم
+                        </h6>
+                        <form asp-action="Schedule" asp-route-id="@Model.RequestId" method="post">
+                            @Html.AntiForgeryToken()
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-secondary">موعد الاستلام</label>
+                                <input type="datetime-local" name="collectionDate" value="@defaultDate" class="form-control bg-light border-0" required />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-secondary">رسوم الاستلام (ج.م)</label>
+                                <input type="number" name="fee" value="@Model.FeeAmount" step="0.01" min="0"
+                                       class="form-control bg-light border-0" @(Model.IsPaid ? "readonly" : "") required />
+                                @if (Model.IsPaid)
+                                {
+                                    <small class="text-muted">تم دفع الرسوم بالفعل ولا يمكن تعديلها.</small>
+                                }
+                                else
+                                {
+                                    <small class="text-muted">اتركها 0 إذا كان التسليم مجانياً.</small>
+                                }
+                            </div>
+
+                            <button type="submit" class="btn btn-teal w-100">حفظ الموعد وإرسال إشعار للمستفيد</button>
+                        </form>
+                    </div>
+
+                    <!-- فورم 2: تأكيد تسليم الدواء -->
+                    <div class="dawy-card p-4">
+                        <h6 class="fw-bold text-dark mb-2">
+                            <i class="bi bi-box-seam me-1"></i> تأكيد استلام المستفيد للدواء
+                        </h6>
+                        @if (canConfirm)
+                        {
+                            <p class="text-muted small mb-3">اضغط لتسجيل أن المستفيد استلم الدواء فعلياً من الصيدلية.</p>
+                            <form asp-action="Confirm" asp-route-id="@Model.RequestId" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-success w-100">تأكيد التسليم النهائي</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning small mb-0">
+                                لا يمكن تأكيد التسليم قبل أن يقوم المستفيد بدفع الرسوم المطلوبة (@Model.FeeAmount.ToString("0.00") ج.م).
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,151 @@
+﻿@model IEnumerable<Dawy.Models.Request>
+@{
+    ViewData["Title"] = "إدارة مواعيد الاستلام والتسليم";
+    var list = Model.ToList();
+    var waitingSchedule = list.Count(r => r.CollectionDate == null);
+    var readyToConfirm = list.Count(r => r.CollectionDate != null && (r.FeeAmount == 0 || r.IsPaid));
+}
+
+<div class="row g-4">
+    <!-- القائمة الجانبية للصيدلي -->
+    <div class="col-lg-3">
+        <div class="dawy-sidebar">
+            <div class="d-flex align-items-center gap-2 mb-4 px-2">
+                <i class="bi bi-heart-pulse-fill fs-3"></i>
+                <div>
+                    <div class="fw-bold fs-5 lh-1">داوي</div>
+                    <small class="text-white-50" style="font-size: 0.7rem;">بوابة الصيدلي</small>
+                </div>
+            </div>
+            <nav class="nav flex-column">
+                <a class="nav-link" asp-controller="Pharmacy" asp-action="MyPharmacies"><i class="bi bi-house-door"></i> صيدلياتي</a>
+                <a class="nav-link" asp-controller="Inspection" asp-action="Index"><i class="bi bi-clipboard2-check"></i> التبرعات الواردة</a>
+                <a class="nav-link" asp-controller="Request" asp-action="PharmacyRequests"><i class="bi bi-bag-check"></i> طلبات المستفيدين</a>
+                <a class="nav-link active" asp-controller="Collection" asp-action="Index"><i class="bi bi-calendar-check"></i> مواعيد الاستلام</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="col-lg-9">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success rounded-3 mb-3">@TempData["SuccessMessage"]</div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger rounded-3 mb-3">@TempData["ErrorMessage"]</div>
+        }
+
+        <div class="dawy-card p-4 mb-4" style="background: linear-gradient(90deg, #e6f4f1 0%, #ffffff 100%);">
+            <h4 class="fw-bold text-teal mb-1">إدارة مواعيد الاستلام والتسليم</h4>
+            <p class="text-muted mb-0">تحديد مواعيد ورسوم استلام الأدوية وتأكيد التسليم للمستفيدين</p>
+        </div>
+
+        <!-- كروت إحصائيات سريعة -->
+        <div class="row g-3 mb-4 text-center">
+            <div class="col-md-4">
+                <div class="dawy-card p-3">
+                    <div class="text-muted small">الطلبات النشطة</div>
+                    <h3 class="fw-bold text-teal mt-1 mb-0">@list.Count</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="dawy-card p-3">
+                    <div class="text-muted small">بانتظار تحديد الموعد</div>
+                    <h3 class="fw-bold text-warning mt-1 mb-0">@waitingSchedule</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="dawy-card p-3">
+                    <div class="text-muted small">جاهزة لتأكيد التسليم</div>
+                    <h3 class="fw-bold text-success mt-1 mb-0">@readyToConfirm</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="dawy-card p-4">
+            <h5 class="fw-bold mb-3">قائمة طلبات الاستلام الجارية</h5>
+
+            @if (!list.Any())
+            {
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-calendar-x fs-1 d-block mb-2 text-teal"></i>
+                    لا توجد طلبات جارية للاستلام حالياً.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>الدواء</th>
+                                <th>المستفيد</th>
+                                <th>الكمية</th>
+                                <th>موعد الاستلام</th>
+                                <th>الرسوم والدفع</th>
+                                <th class="text-center">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in list)
+                            {
+                                var canConfirm = item.CollectionDate != null && (item.FeeAmount == 0 || item.IsPaid);
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold">@item.Product?.ProductName</div>
+                                        <small class="text-muted">@item.Product?.Pharmacy?.PharmacyName</small>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold">@item.Beneficiary?.FullName</div>
+                                        <small class="text-muted" dir="ltr">@item.Beneficiary?.PhoneNumber</small>
+                                    </td>
+                                    <td>@item.RequestedQuantity عبوة</td>
+                                    <td>
+                                        @if (item.CollectionDate.HasValue)
+                                        {
+                                            <span class="badge-approved" dir="ltr">@item.CollectionDate.Value.ToString("yyyy/MM/dd HH:mm")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge-pending">لم يُحدد بعد</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (item.FeeAmount <= 0)
+                                        {
+                                            <span class="badge bg-light text-dark border">مجاني</span>
+                                        }
+                                        else if (item.IsPaid)
+                                        {
+                                            <span class="badge-approved">@item.FeeAmount.ToString("0.00") ج.م (مدفوع)</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge-pending">@item.FeeAmount.ToString("0.00") ج.م (غير مدفوع)</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="d-inline-flex gap-2">
+                                            <a asp-action="Details" asp-route-id="@item.RequestId" class="btn btn-outline-teal btn-sm">
+                                                جدولة / تفاصيل
+                                            </a>
+                                            @if (canConfirm)
+                                            {
+                                                <form asp-action="Confirm" asp-route-id="@item.RequestId" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-teal btn-sm">تأكيد التسليم</button>
+                                                </form>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

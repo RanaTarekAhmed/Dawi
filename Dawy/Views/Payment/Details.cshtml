@@ -1,0 +1,116 @@
+﻿@model Dawy.Models.Request
+@{
+    ViewData["Title"] = "تفاصيل الدفع";
+    var canPay = !Model.IsPaid
+                 && Model.RejectionReason == null
+                 && Model.CollectionDate != null
+                 && Model.CollectedAt == null
+                 && Model.FeeAmount > 0;
+}
+
+<div class="row justify-content-center py-3">
+    <div class="col-12 col-md-9 col-lg-7">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="fw-bold text-teal mb-0">
+                <i class="bi bi-receipt me-1"></i> فاتورة الطلب #@Model.RequestId
+            </h4>
+            <a asp-action="Index" class="btn btn-outline-teal btn-sm">
+                <i class="bi bi-arrow-right"></i> عودة للمدفوعات
+            </a>
+        </div>
+
+        <div class="dawy-card p-4 p-md-5">
+            <div class="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+                <div>
+                    <div class="text-muted small">المبلغ المطلوب</div>
+                    <h2 class="fw-bold text-teal mb-0">@Model.FeeAmount.ToString("0.00") ج.م</h2>
+                </div>
+                <div>
+                    @if (Model.RejectionReason != null)
+                    {
+                        <span class="badge-rejected">طلب مرفوض</span>
+                    }
+                    else if (Model.IsPaid)
+                    {
+                        <span class="badge-approved">تم الدفع</span>
+                    }
+                    else if (Model.FeeAmount <= 0)
+                    {
+                        <span class="badge bg-light text-dark border px-3 py-2">مجاني</span>
+                    }
+                    else
+                    {
+                        <span class="badge-pending">بانتظار الدفع</span>
+                    }
+                </div>
+            </div>
+
+            <table class="table table-bordered align-middle mb-4">
+                <tr>
+                    <th class="bg-light w-35">اسم الدواء</th>
+                    <td class="fw-bold">@Model.Product?.ProductName</td>
+                </tr>
+                <tr>
+                    <th class="bg-light">الفئة</th>
+                    <td>@Model.Product?.Category</td>
+                </tr>
+                <tr>
+                    <th class="bg-light">الكمية المطلوبة</th>
+                    <td>@Model.RequestedQuantity عبوة</td>
+                </tr>
+                <tr>
+                    <th class="bg-light">تاريخ الطلب</th>
+                    <td dir="ltr" style="text-align: right;">@Model.RequestDate.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</td>
+                </tr>
+                <tr>
+                    <th class="bg-light">موعد الاستلام المحدد</th>
+                    <td>
+                        @if (Model.CollectionDate.HasValue)
+                        {
+                            <span dir="ltr">@Model.CollectionDate.Value.ToString("yyyy/MM/dd HH:mm")</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">لم يحدده الصيدلي بعد</span>
+                        }
+                    </td>
+                </tr>
+                @if (Model.CollectedAt.HasValue)
+                {
+                    <tr>
+                        <th class="bg-light">تاريخ الاستلام الفعلي</th>
+                        <td dir="ltr" style="text-align: right;">@Model.CollectedAt.Value.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</td>
+                    </tr>
+                }
+            </table>
+
+            @if (canPay)
+            {
+                <form asp-action="Pay" asp-route-id="@Model.RequestId" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-teal btn-lg w-100 py-2">
+                        <i class="bi bi-check2-circle me-1"></i> تأكيد ودفع @Model.FeeAmount.ToString("0.00") ج.م الآن
+                    </button>
+                </form>
+            }
+            else if (Model.IsPaid)
+            {
+                <div class="alert alert-success text-center mb-0">
+                    <i class="bi bi-check-circle-fill me-1"></i> تم سداد رسوم هذا الطلب بنجاح.
+                </div>
+            }
+            else if (Model.RejectionReason != null)
+            {
+                <div class="alert alert-danger mb-0">
+                    لا يمكن الدفع لأن الطلب مرفوض. السبب: @Model.RejectionReason
+                </div>
+            }
+            else if (Model.CollectionDate == null)
+            {
+                <div class="alert alert-warning mb-0">
+                    يجب أن يحدد الصيدلي موعد الاستلام أولاً قبل إتاحة الدفع.
+                </div>
+            }
+        </div>
+    </div>
+</div>
