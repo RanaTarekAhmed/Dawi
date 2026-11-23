@@ -1,0 +1,15 @@
+@model IEnumerable<Dawy.Models.User>
+@{ ViewData["Title"]="إدارة المستخدمين"; }
+<div class="row g-4"><div class="col-lg-3">@await Html.PartialAsync("_AdminSidebar")</div><div class="col-lg-9">
+<h2 class="text-teal fw-bold mb-3">إدارة المستخدمين</h2>
+@if(TempData["Success"]!=null){<div class="alert alert-success">@TempData["Success"]</div>} @if(TempData["Error"]!=null){<div class="alert alert-danger">@TempData["Error"]</div>}
+<form method="get" class="dawy-card p-3 mb-3"><div class="row g-2 align-items-end">
+<div class="col-md-4"><label class="form-label">بحث بالاسم أو البريد</label><input class="form-control" name="search" value="@ViewBag.Search"/></div>
+<div class="col-md-3"><label class="form-label">الدور</label><select class="form-select" name="role"><option value="">كل الأدوار</option>@foreach(var r in new[]{"Admin","Donor","Beneficiary","Pharmacist"}){<option value="@r" selected="@(ViewBag.Role==r)">@r</option>}</select></div>
+<div class="col-md-3"><label class="form-label">الحالة</label><select class="form-select" name="includeInactive"><option value="true" selected="@((bool?)ViewBag.IncludeInactive==true)">الكل</option><option value="false" selected="@((bool?)ViewBag.IncludeInactive==false)">النشط فقط</option></select></div>
+<div class="col-md-2"><button class="btn btn-teal w-100">تصفية</button></div></div></form>
+<div class="dawy-card p-3 table-responsive"><table class="table align-middle"><thead><tr><th>المستخدم</th><th>البريد</th><th>الدور</th><th>الحالة</th><th>الإجراءات</th></tr></thead><tbody>
+@foreach(var u in Model){<tr><td>@u.FullName<small class="d-block text-muted">#@u.UserId</small></td><td>@u.Email</td><td>
+<form asp-action="SetUserRole" method="post" class="d-flex gap-1">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@u.UserId"/><select name="role" class="form-select form-select-sm">@foreach(var r in new[]{"Admin","Donor","Beneficiary","Pharmacist"}){<option value="@r" selected="@(u.Role==r)">@r</option>}</select><button class="btn btn-outline-teal btn-sm">حفظ</button></form>
+</td><td><span class="badge @(u.IsActive?"bg-success":"bg-secondary")">@(u.IsActive?"نشط":"معطل")</span></td><td><form asp-action="SetUserStatus" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@u.UserId"/><input type="hidden" name="isActive" value="@(!u.IsActive)"/><button class="btn btn-sm @(u.IsActive?"btn-outline-danger":"btn-outline-success")">@(u.IsActive?"تعطيل":"تفعيل")</button></form></td></tr>}
+</tbody></table></div></div></div>
