@@ -19,7 +19,12 @@ namespace Dawy.Controllers
         {
             var query = _context.Notifications.AsNoTracking().Where(n => n.UserId == CurrentUserId);
             if (unreadOnly) query = query.Where(n => !n.IsRead);
-            return Ok(await query.OrderByDescending(n => n.CreatedAt).ToListAsync());
+            //return Ok(await query.OrderByDescending(n => n.CreatedAt).ToListAsync());
+            var items = await query
+                .OrderByDescending(n => n.CreatedAt)
+                .ToListAsync();
+
+            return View(items);
         }
 
         [HttpGet]
@@ -33,7 +38,8 @@ namespace Dawy.Controllers
             if (notification == null) return NotFound();
             notification.IsRead = true;
             await _context.SaveChangesAsync();
-            return Ok(new { notification.NotificationId, notification.IsRead });
+            //return Ok(new { notification.NotificationId, notification.IsRead });
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
@@ -42,7 +48,8 @@ namespace Dawy.Controllers
         {
             await _context.Notifications.Where(n => n.UserId == CurrentUserId && !n.IsRead)
                 .ExecuteUpdateAsync(s => s.SetProperty(n => n.IsRead, true));
-            return Ok();
+            //return Ok();
+            return RedirectToAction(nameof(Index));
         }
     }
 }
