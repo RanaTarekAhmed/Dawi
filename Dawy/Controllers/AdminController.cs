@@ -204,7 +204,7 @@ namespace Dawy.Controllers
                 product.DonorId,
                 "Donation status updated",
                 $"Your donation '{product.ProductName}' is {status.ToLowerInvariant()}.",
-                "/Product/MyDonations");
+                "/Donation");
 
             await _context.SaveChangesAsync();
 
