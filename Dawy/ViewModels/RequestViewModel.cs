@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace Dawi.ViewModels
 {
@@ -15,12 +16,10 @@ namespace Dawi.ViewModels
         [Range(1, 1000, ErrorMessage = "Quantity must be at least 1.")]
         public int Quantity { get; set; } = 1;
 
-        [Url(ErrorMessage = "The link is not valid.")]
-
         [Display(Name = "صورة الروشتة")]
         public IFormFile? PrescriptionImage { get; set; }
+
         [Url(ErrorMessage = "The link is not valid.")]
         public string? PrescriptionImageUrl { get; set; }
     }
 }
-
