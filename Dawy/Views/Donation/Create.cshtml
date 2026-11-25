@@ -32,6 +32,7 @@
                 <div class="mb-3">
                     <label asp-for="Quantity" class="form-label text-muted small fw-bold">الكمية المتاحة</label>
                     <input asp-for="Quantity" type="number" min="1" class="form-control form-control-lg bg-light border-0" placeholder="الكمية (عدد العبوات)" />
+                    <span asp-validation-for="Quantity" class="text-danger small"></span>
                 </div>
 
                 <div class="mb-3">
@@ -43,12 +44,13 @@
                 <div class="mb-3">
                     <label asp-for="PharmacyId" class="form-label text-muted small fw-bold">الصيدلية المستلمة</label>
                     <select asp-for="PharmacyId" asp-items="ViewBag.Pharmacies" class="form-select form-select-lg bg-light border-0">
-                        <option value="1">صيدلية الشفاء المعتمدة</option>
+                        <option value="">-- اختر الصيدلية المعتمدة --</option>
                     </select>
+                    <span asp-validation-for="PharmacyId" class="text-danger small"></span>
                 </div>
 
                 <div class="mb-4">
-                    <label class="form-label text-muted small fw-bold">ملاحظات أو صورة العبوة (اختياري)</label>
+                    <label class="form-label text-muted small fw-bold">صورة العبوة (اختياري)</label>
                     <input type="file" name="imageFile" class="form-control bg-light border-0" />
                 </div>
 
@@ -57,4 +59,3 @@
         </div>
     </div>
 </div>
-

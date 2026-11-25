@@ -8,103 +8,143 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
-        :root {
-            --dawy-teal: #0f766e;
-            --dawy-teal-dark: #0b4f4a;
-            --dawy-teal-light: #e6f4f1;
-            --dawy-sidebar: #11423f;
-        }
-        body {
-            font-family: 'Cairo', sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
-        }
-        .text-teal { color: var(--dawy-teal) !important; }
-        .bg-teal { background-color: var(--dawy-teal) !important; }
-        .bg-teal-light { background-color: var(--dawy-teal-light) !important; }
-        
-        .btn-teal {
-            background-color: var(--dawy-teal);
-            color: #fff;
-            border-radius: 8px;
-            font-weight: 600;
-            border: none;
-            transition: 0.2s;
-        }
-        .btn-teal:hover {
-            background-color: var(--dawy-teal-dark);
-            color: #fff;
-        }
-        .btn-outline-teal {
-            border: 1.5px solid var(--dawy-teal);
-            color: var(--dawy-teal);
-            border-radius: 8px;
-            font-weight: 600;
-            background: transparent;
-        }
-        .btn-outline-teal:hover {
-            background-color: var(--dawy-teal);
-            color: #fff;
-        }
-        .dawy-navbar {
-            background: #ffffff;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-            padding: 12px 0;
-        }
-        .brand-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-        .brand-heart {
-            width: 38px;
-            height: 38px;
-            background-color: var(--dawy-teal);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-        .dawy-card {
-            background: #fff;
-            border-radius: 14px;
-            border: 1px solid #eef2f6;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-        }
-        .dawy-sidebar {
-            background-color: var(--dawy-sidebar);
-            min-height: calc(100vh - 76px);
-            border-radius: 16px;
-            color: #fff;
-            padding: 24px 16px;
-        }
-        .dawy-sidebar .nav-link {
-            color: rgba(255,255,255,0.8);
-            padding: 12px 16px;
-            border-radius: 10px;
-            margin-bottom: 6px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .dawy-sidebar .nav-link:hover, .dawy-sidebar .nav-link.active {
-            background-color: rgba(255,255,255,0.15);
-            color: #fff;
-        }
-        .badge-approved { background-color: #d1fae5; color: #065f46; padding: 6px 14px; border-radius: 20px; font-weight: 600; }
-        .badge-pending { background-color: #fef3c7; color: #92400e; padding: 6px 14px; border-radius: 20px; font-weight: 600; }
-        .badge-rejected { background-color: #fee2e2; color: #991b1b; padding: 6px 14px; border-radius: 20px; font-weight: 600; }
+            :root {
+                --dawy-teal: #0f766e;
+                --dawy-teal-dark: #0b4f4a;
+                --dawy-teal-light: #e6f4f1;
+                --dawy-sidebar: #11423f;
+            }
+
+            body {
+                font-family: 'Cairo', sans-serif;
+                background-color: #f8fafc;
+                color: #1e293b;
+            }
+
+            .text-teal {
+                color: var(--dawy-teal) !important;
+            }
+
+            .bg-teal {
+                background-color: var(--dawy-teal) !important;
+            }
+
+            .bg-teal-light {
+                background-color: var(--dawy-teal-light) !important;
+            }
+
+            .btn-teal {
+                background-color: var(--dawy-teal);
+                color: #fff;
+                border-radius: 8px;
+                font-weight: 600;
+                border: none;
+                transition: 0.2s;
+            }
+
+                .btn-teal:hover {
+                    background-color: var(--dawy-teal-dark);
+                    color: #fff;
+                }
+
+            .btn-outline-teal {
+                border: 1.5px solid var(--dawy-teal);
+                color: var(--dawy-teal);
+                border-radius: 8px;
+                font-weight: 600;
+                background: transparent;
+            }
+
+                .btn-outline-teal:hover {
+                    background-color: var(--dawy-teal);
+                    color: #fff;
+                }
+
+            .dawy-navbar {
+                background: #ffffff;
+                box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+                padding: 12px 0;
+            }
+
+            .brand-logo {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                text-decoration: none;
+            }
+
+            .brand-heart {
+                width: 38px;
+                height: 38px;
+                background-color: var(--dawy-teal);
+                color: white;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.2rem;
+            }
+
+            .dawy-card {
+                background: #fff;
+                border-radius: 14px;
+                border: 1px solid #eef2f6;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            }
+
+            .dawy-sidebar {
+                background-color: var(--dawy-sidebar);
+                min-height: calc(100vh - 76px);
+                border-radius: 16px;
+                color: #fff;
+                padding: 24px 16px;
+            }
+
+                .dawy-sidebar .nav-link {
+                    color: rgba(255,255,255,0.8);
+                    padding: 12px 16px;
+                    border-radius: 10px;
+                    margin-bottom: 6px;
+                    font-weight: 600;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+
+                    .dawy-sidebar .nav-link:hover, .dawy-sidebar .nav-link.active {
+                        background-color: rgba(255,255,255,0.15);
+                        color: #fff;
+                    }
+
+            .badge-approved {
+                background-color: #d1fae5;
+                color: #065f46;
+                padding: 6px 14px;
+                border-radius: 20px;
+                font-weight: 600;
+            }
+
+            .badge-pending {
+                background-color: #fef3c7;
+                color: #92400e;
+                padding: 6px 14px;
+                border-radius: 20px;
+                font-weight: 600;
+            }
+
+            .badge-rejected {
+                background-color: #fee2e2;
+                color: #991b1b;
+                padding: 6px 14px;
+                border-radius: 20px;
+                font-weight: 600;
+            }
     </style>
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-lg dawy-navbar">
             <div class="container">
-                <!-- اللوجو على اليمين زي التصميم -->
                 <a class="brand-logo" asp-controller="Home" asp-action="Index">
                     <div class="brand-heart"><i class="bi bi-heart-pulse-fill"></i></div>
                     <div>
@@ -118,7 +158,7 @@
                 </button>
 
                 <div class="collapse navbar-collapse justify-content-between" id="dawyNav">
-                    <ul class="navbar-nav mx-auto gap-3">
+                    <ul class="navbar-nav mx-auto gap-2">
                         <li class="nav-item">
                             <a class="nav-link fw-bold text-teal" asp-controller="Home" asp-action="Index">الرئيسية</a>
                         </li>
@@ -127,6 +167,7 @@
                         {
                             <li class="nav-item"><a class="nav-link fw-semibold text-dark" asp-controller="Category" asp-action="Index">المنتجات</a></li>
                             <li class="nav-item"><a class="nav-link fw-semibold text-dark" asp-controller="Request" asp-action="MyRequests">طلباتي</a></li>
+                            <li class="nav-item"><a class="nav-link fw-semibold text-dark" asp-controller="Payment" asp-action="Index">المدفوعات</a></li>
                         }
                         @if (User.IsInRole(Dawi.Models.Roles.Donor))
                         {
@@ -136,28 +177,29 @@
                         @if (User.IsInRole(Dawi.Models.Roles.Pharmacist))
                         {
                             <li class="nav-item"><a class="nav-link fw-semibold text-dark" asp-controller="Pharmacy" asp-action="MyPharmacies">صيدلياتي</a></li>
-                            <li class="nav-item"><a class="nav-link fw-semibold text-dark" asp-controller="Inspection" asp-action="Index">التبرعات الواردة للمراجعة</a></li>
+                            <li class="nav-item"><a class="nav-link fw-semibold text-dark" asp-controller="Inspection" asp-action="Index">فحص التبرعات</a></li>
+                            <li class="nav-item"><a class="nav-link fw-semibold text-dark" asp-controller="Request" asp-action="PharmacyRequests">طلبات المستفيدين</a></li>
+                            <li class="nav-item"><a class="nav-link fw-semibold text-dark" asp-controller="Collection" asp-action="Index">مواعيد الاستلام</a></li>
                         }
                         @if (User.IsInRole(Dawi.Models.Roles.Admin))
                         {
                             <li class="nav-item"><a class="nav-link fw-semibold text-dark" asp-controller="Admin" asp-action="Index">لوحة الإدارة</a></li>
+                            <li class="nav-item"><a class="nav-link fw-semibold text-dark" asp-controller="Collection" asp-action="Index">الاستلام</a></li>
                             <li class="nav-item"><a class="nav-link fw-semibold text-dark" asp-controller="Audit" asp-action="Index">سجل العمليات</a></li>
                         }
                         <li class="nav-item"><a class="nav-link fw-semibold text-dark" asp-controller="Pharmacy" asp-action="Index">الصيدليات</a></li>
                     </ul>
-                  
+
                     <div class="d-flex align-items-center gap-2">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-
                             <a asp-controller="Notification" asp-action="Index" class="btn btn-light btn-sm text-teal" title="الإشعارات">
                                 <i class="bi bi-bell-fill"></i>
                             </a>
-                           
                             <a asp-controller="Profile" asp-action="Index" class="btn btn-light btn-sm text-teal" title="الملف الشخصي">
                                 <i class="bi bi-person-circle"></i>
                             </a>
-                            <span class="fw-bold text-teal me-2"><i class="bi bi-person-circle"></i> @User.Identity.Name</span>
+                            <span class="fw-bold text-teal me-2">@User.Identity.Name</span>
                             <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                                 @Html.AntiForgeryToken()
                                 <button type="submit" class="btn btn-outline-danger btn-sm">تسجيل الخروج</button>
