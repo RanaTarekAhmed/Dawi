@@ -98,7 +98,7 @@ Dawy/
 
 ## 🏢 Organization, Supervision & Team
 
-- **Organization:** YAT
+- **Organization:** YAT Learning center
 - **Instructor:** Eng. Ayed Ali
 
 ### Team Members
