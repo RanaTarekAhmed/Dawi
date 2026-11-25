@@ -1,11 +1,11 @@
 using System.Security.Claims;
-using Dawy.Data;
-using Dawy.Models;
+using Dawi.Data;
+using Dawi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Dawy.Controllers
+namespace Dawi.Controllers
 {
     [Authorize(Roles = Roles.Pharmacist + "," + Roles.Admin)]
     public class CollectionController : Controller
@@ -131,3 +131,4 @@ namespace Dawy.Controllers
         }
     }
 }
+

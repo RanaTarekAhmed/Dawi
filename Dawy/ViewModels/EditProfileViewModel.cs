@@ -1,8 +1,8 @@
-﻿
+
 
 using System.ComponentModel.DataAnnotations;
 
-namespace Dawy.ViewModels
+namespace Dawi.ViewModels
 {
     public class EditProfileViewModel
     {
@@ -17,3 +17,4 @@ namespace Dawy.ViewModels
         public string? PhoneNumber { get; set; }
     }
 }
+

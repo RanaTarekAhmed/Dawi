@@ -1,13 +1,13 @@
 using System.Security.Claims;
-using Dawy.Data;
-using Dawy.Models;
-using Dawy.ViewModels;
+using Dawi.Data;
+using Dawi.Models;
+using Dawi.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
-namespace Dawy.Controllers
+namespace Dawi.Controllers
 {
     [Authorize]
     public class DonationController : Controller
@@ -247,3 +247,5 @@ namespace Dawy.Controllers
             }).AsTask();
     }
 }
+
+

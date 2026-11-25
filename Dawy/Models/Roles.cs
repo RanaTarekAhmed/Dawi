@@ -1,5 +1,5 @@
-﻿
-namespace Dawy.Models
+
+namespace Dawi.Models
 {
     public static class Roles
     {
@@ -11,3 +11,4 @@ namespace Dawy.Models
         public static readonly string[] SelfAssignable = { Donor, Beneficiary, Pharmacist };
     }
 }
+

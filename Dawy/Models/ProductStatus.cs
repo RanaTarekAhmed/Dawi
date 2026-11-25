@@ -1,5 +1,5 @@
-﻿
-namespace Dawy.Models
+
+namespace Dawi.Models
 {
     public static class ProductStatus
     {
@@ -9,3 +9,4 @@ namespace Dawy.Models
         public const string Rejected = "Rejected";
     }
 }
+

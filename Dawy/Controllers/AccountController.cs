@@ -1,7 +1,7 @@
-﻿using System.Security.Claims;
-using Dawy.Data;
-using Dawy.Models;
-using Dawy.ViewModels;
+using System.Security.Claims;
+using Dawi.Data;
+using Dawi.Models;
+using Dawi.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Dawy.Controllers
+namespace Dawi.Controllers
 {
     public class AccountController : Controller
     {
@@ -223,10 +223,18 @@ namespace Dawy.Controllers
                 new AuthenticationProperties { IsPersistent = isPersistent });
         }
 
-        // Temporary: all roles go to Home until their controllers exist
         private IActionResult RedirectByRole(string role)
         {
-            return RedirectToAction("Index", "Home");
+            return role switch
+            {
+                Roles.Donor => RedirectToAction("Index", "Donation"),
+                Roles.Pharmacist => RedirectToAction("MyPharmacies", "Pharmacy"),
+                Roles.Admin => RedirectToAction("Index", "Admin"),
+                Roles.Beneficiary => RedirectToAction("Index", "Category"),
+                _ => RedirectToAction("Index", "Home")
+            };
         }
     }
 }
+
+

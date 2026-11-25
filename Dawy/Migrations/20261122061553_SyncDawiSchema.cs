@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Dawy.Migrations
+namespace Dawi.Migrations
 {
     /// <inheritdoc />
     public partial class SyncDawiSchema : Migration
@@ -186,3 +186,5 @@ namespace Dawy.Migrations
         }
     }
 }
+
+

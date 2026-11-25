@@ -1,7 +1,7 @@
-﻿using Dawy.ViewModels;
+using Dawi.ViewModels;
 using System.ComponentModel.DataAnnotations;
 
-namespace Dawy.ViewModels
+namespace Dawi.ViewModels
 {
     public class ProductViewModel
     {
@@ -26,3 +26,4 @@ namespace Dawy.ViewModels
 
   
       
+

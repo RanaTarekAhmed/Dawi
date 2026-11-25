@@ -1,8 +1,8 @@
-using Dawy.Models;
+using Dawi.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
-namespace Dawy.Controllers
+namespace Dawi.Controllers
 {
     public class HomeController : Controller
     {
@@ -23,3 +23,5 @@ namespace Dawy.Controllers
         }
     }
 }
+
+

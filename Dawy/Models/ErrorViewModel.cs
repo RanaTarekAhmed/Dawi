@@ -1,4 +1,4 @@
-namespace Dawy.Models
+namespace Dawi.Models
 {
     public class ErrorViewModel
     {
@@ -7,3 +7,5 @@ namespace Dawy.Models
         public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
     }
 }
+
+

@@ -1,4 +1,4 @@
-﻿@model Dawy.Models.Product
+@model Dawi.Models.Product
 @{
     ViewData["Title"] = "فحص الدواء - " + Model.ProductName;
 }
@@ -54,7 +54,7 @@
                         </tr>
                     </table>
 
-                    @if (Model.Status == Dawy.Models.ProductStatus.Pending)
+                    @if (Model.Status == Dawi.Models.ProductStatus.Pending)
                     {
                         <div class="row g-3 mt-3">
                             <!-- فورم القبول والاعتماد -->
@@ -107,3 +107,4 @@
         </div>
     </div>
 </div>
+

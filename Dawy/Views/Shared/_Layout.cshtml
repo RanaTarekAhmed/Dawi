@@ -122,26 +122,38 @@
                         <li class="nav-item">
                             <a class="nav-link fw-bold text-teal" asp-controller="Home" asp-action="Index">الرئيسية</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link fw-semibold text-dark" asp-controller="Category" asp-action="Index">المنتجات</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link fw-semibold text-dark" asp-controller="Donation" asp-action="Create">إضافة تبرع</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link fw-semibold text-dark" asp-controller="Donation" asp-action="Index">لوحة المتبرع</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link fw-semibold text-dark" asp-controller="Inspection" asp-action="Index">التبرعات الواردة للمراجعة</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link fw-semibold text-dark" asp-controller="Pharmacy" asp-action="Index">الصيدليات</a>
-                        </li>
+                        @if (User.IsInRole(Dawi.Models.Roles.Beneficiary))
+                        {
+                            <li class="nav-item"><a class="nav-link fw-semibold text-dark" asp-controller="Category" asp-action="Index">المنتجات</a></li>
+                            <li class="nav-item"><a class="nav-link fw-semibold text-dark" asp-controller="Request" asp-action="MyRequests">طلباتي</a></li>
+                        }
+                        @if (User.IsInRole(Dawi.Models.Roles.Donor))
+                        {
+                            <li class="nav-item"><a class="nav-link fw-semibold text-dark" asp-controller="Donation" asp-action="Create">إضافة تبرع</a></li>
+                            <li class="nav-item"><a class="nav-link fw-semibold text-dark" asp-controller="Donation" asp-action="Index">لوحة المتبرع</a></li>
+                        }
+                        @if (User.IsInRole(Dawi.Models.Roles.Pharmacist))
+                        {
+                            <li class="nav-item"><a class="nav-link fw-semibold text-dark" asp-controller="Pharmacy" asp-action="MyPharmacies">صيدلياتي</a></li>
+                            <li class="nav-item"><a class="nav-link fw-semibold text-dark" asp-controller="Inspection" asp-action="Index">التبرعات الواردة للمراجعة</a></li>
+                        }
+                        @if (User.IsInRole(Dawi.Models.Roles.Admin))
+                        {
+                            <li class="nav-item"><a class="nav-link fw-semibold text-dark" asp-controller="Admin" asp-action="Index">لوحة الإدارة</a></li>
+                            <li class="nav-item"><a class="nav-link fw-semibold text-dark" asp-controller="Audit" asp-action="Index">سجل العمليات</a></li>
+                        }
+                        <li class="nav-item"><a class="nav-link fw-semibold text-dark" asp-controller="Pharmacy" asp-action="Index">الصيدليات</a></li>
                     </ul>
 
                     <div class="d-flex align-items-center gap-2">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
+                            <a asp-controller="Notification" asp-action="Index" class="btn btn-light btn-sm text-teal" title="الإشعارات">
+                                <i class="bi bi-bell-fill"></i>
+                            </a>
+                            <a asp-controller="Profile" asp-action="Index" class="btn btn-light btn-sm text-teal" title="الملف الشخصي">
+                                <i class="bi bi-person-circle"></i>
+                            </a>
                             <span class="fw-bold text-teal me-2"><i class="bi bi-person-circle"></i> @User.Identity.Name</span>
                             <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                                 @Html.AntiForgeryToken()

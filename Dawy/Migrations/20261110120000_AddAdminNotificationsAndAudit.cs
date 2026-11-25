@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Dawy.Migrations
+namespace Dawi.Migrations
 {
     public partial class AddAdminNotificationsAndAudit : Migration
     {
@@ -66,3 +66,5 @@ namespace Dawy.Migrations
         }
     }
 }
+
+

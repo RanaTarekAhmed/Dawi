@@ -1,6 +1,6 @@
-﻿
 
-namespace Dawy.Models
+
+namespace Dawi.Models
 {
 
     public class Product
@@ -24,3 +24,5 @@ namespace Dawy.Models
         public ICollection<Request> Requests { get; set; } = new List<Request>();
     }
 }
+
+

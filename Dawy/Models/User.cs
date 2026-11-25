@@ -1,6 +1,6 @@
-﻿
+
 using System.ComponentModel.DataAnnotations;
-namespace Dawy.Models
+namespace Dawi.Models
 {
     public class User
     {
@@ -26,3 +26,5 @@ namespace Dawy.Models
         public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
     }
 }
+
+

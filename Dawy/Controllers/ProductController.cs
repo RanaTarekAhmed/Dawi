@@ -1,12 +1,12 @@
-﻿using System.Security.Claims;
-using Dawy.Data;
-using Dawy.Models;
-using Dawy.ViewModels;
+using System.Security.Claims;
+using Dawi.Data;
+using Dawi.Models;
+using Dawi.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Dawy.Controllers
+namespace Dawi.Controllers
 {
     public class ProductController : Controller
     {
@@ -220,3 +220,4 @@ namespace Dawy.Controllers
         }
     }
 }
+

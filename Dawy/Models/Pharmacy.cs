@@ -1,4 +1,4 @@
-﻿namespace Dawy.Models
+namespace Dawi.Models
 {
     public class Pharmacy
     {
@@ -14,3 +14,4 @@
 
     }
 }
+

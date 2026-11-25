@@ -1,5 +1,5 @@
-using Dawy.Data;
-using Dawy.Models;
+using Dawi.Data;
+using Dawi.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +31,8 @@ namespace Dawi
                 });
 
             var app = builder.Build();
+
+            DbInitializer.Initialize(app.Services);
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())

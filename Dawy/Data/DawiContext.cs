@@ -1,7 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Dawy.Models;
+using Microsoft.EntityFrameworkCore;
+using Dawi.Models;
 
-namespace Dawy.Data
+namespace Dawi.Data
 {
     public class DawiContext : DbContext
     {
@@ -135,3 +135,5 @@ namespace Dawy.Data
         }
     }
 }
+
+

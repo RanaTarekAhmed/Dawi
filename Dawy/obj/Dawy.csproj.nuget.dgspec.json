@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Dawi\\Dawy\\Dawy.csproj": {}
+    "C:\\Users\\PC\\Downloads\\Dawi\\Dawy\\Dawy.csproj": {}
   },
   "projects": {
-    "D:\\Dawi\\Dawy\\Dawy.csproj": {
+    "C:\\Users\\PC\\Downloads\\Dawi\\Dawy\\Dawy.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Dawi\\Dawy\\Dawy.csproj",
+        "projectUniqueName": "C:\\Users\\PC\\Downloads\\Dawi\\Dawy\\Dawy.csproj",
         "projectName": "Dawy",
-        "projectPath": "D:\\Dawi\\Dawy\\Dawy.csproj",
-        "packagesPath": "C:\\Users\\Owner\\.nuget\\packages\\",
-        "outputPath": "D:\\Dawi\\Dawy\\obj\\",
+        "projectPath": "C:\\Users\\PC\\Downloads\\Dawi\\Dawy\\Dawy.csproj",
+        "packagesPath": "C:\\Users\\PC\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\PC\\Downloads\\Dawi\\Dawy\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Owner\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\PC\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,7 +26,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {

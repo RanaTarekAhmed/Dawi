@@ -1,10 +1,10 @@
-﻿using Dawy.Data;
-using Dawy.Models;
+using Dawi.Data;
+using Dawi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Dawy.Controllers
+namespace Dawi.Controllers
 {
     [AllowAnonymous]
     public class CategoryController : Controller
@@ -115,3 +115,4 @@ namespace Dawy.Controllers
         }
     }
 }
+

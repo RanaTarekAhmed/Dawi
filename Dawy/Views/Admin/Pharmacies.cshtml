@@ -1,4 +1,4 @@
-@model IEnumerable<Dawy.Models.Pharmacy>
+@model IEnumerable<Dawi.Models.Pharmacy>
 @{ ViewData["Title"]="إدارة الصيدليات"; }
 <div class="row g-4"><div class="col-lg-3">@await Html.PartialAsync("_AdminSidebar")</div><div class="col-lg-9">
 <h2 class="text-teal fw-bold mb-3">اعتماد الصيدليات</h2>
@@ -7,3 +7,5 @@
 <div class="dawy-card p-3 table-responsive"><table class="table align-middle"><thead><tr><th>الصيدلية</th><th>الصيدلي</th><th>المدينة</th><th>التواصل</th><th>الحالة</th><th></th></tr></thead><tbody>
 @foreach(var p in Model){<tr><td><strong>@p.PharmacyName</strong><small class="d-block text-muted">@p.Address</small></td><td>@(p.Pharmacist?.FullName??"—")</td><td>@p.City</td><td>@p.PhoneNumber</td><td><span class="badge @(p.IsVerified?"bg-success":"bg-warning text-dark")">@(p.IsVerified?"معتمدة":"بانتظار الاعتماد")</span></td><td><form asp-action="VerifyPharmacy" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@p.PharmacyId"/><input type="hidden" name="verified" value="@(!p.IsVerified)"/><button class="btn btn-sm @(p.IsVerified?"btn-outline-danger":"btn-teal")">@(p.IsVerified?"إلغاء الاعتماد":"اعتماد")</button></form></td></tr>}
 </tbody></table></div></div></div>
+
+

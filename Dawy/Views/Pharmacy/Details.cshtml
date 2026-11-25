@@ -1,7 +1,7 @@
-﻿@model Dawy.Models.Pharmacy
+@model Dawi.Models.Pharmacy
 @{
     ViewData["Title"] = Model.PharmacyName;
-    var products = ViewBag.AvailableProducts as List<Dawy.Models.Product> ?? new List<Dawy.Models.Product>();
+    var products = ViewBag.AvailableProducts as List<Dawi.Models.Product> ?? new List<Dawi.Models.Product>();
 }
 
 <div class="container py-4" dir="rtl">
@@ -47,3 +47,4 @@
         </div>
     }
 </div>
+

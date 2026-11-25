@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
-namespace Dawy.ViewModels
+namespace Dawi.ViewModels
 {
     public class RequestViewModel
     {
@@ -23,3 +23,4 @@ namespace Dawy.ViewModels
         public string? PrescriptionImageUrl { get; set; }
     }
 }
+

@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
-namespace Dawy.ViewModels
+namespace Dawi.ViewModels
 {
     public class RegisterViewModel
     {
@@ -58,3 +58,4 @@ namespace Dawy.ViewModels
         public string? PharmacyPhoneNumber { get; set; }
     }
 }
+

@@ -1,4 +1,4 @@
-namespace Dawy.Models
+namespace Dawi.Models
 {
     public class AuditLog
     {
@@ -12,3 +12,5 @@ namespace Dawy.Models
         public DateTime CreatedAt { get; set; }
     }
 }
+
+
