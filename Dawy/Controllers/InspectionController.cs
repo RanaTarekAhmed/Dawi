@@ -100,6 +100,7 @@ namespace Dawi.Controllers
             if (product.ExpiryDate <= today)
             {
                 product.Status = ProductStatus.Rejected;
+                product.RejectionReason = "الدواء منتهي الصلاحية.";
                 await WriteAuditAsync("InspectionAutoRejectedExpired", nameof(Product), product.ProductId, "Expired product rejected during inspection.");
                 await NotifyAsync(product.DonorId, "تحديث حالة التبرع", $"عذراً، تم رفض تبرعك '{product.ProductName}' لانتهاء تاريخ الصلاحية.", "/Donation");
                 await _context.SaveChangesAsync();
@@ -160,8 +161,9 @@ namespace Dawi.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            product.Status = ProductStatus.Rejected;
             var cleanReason = reason.Trim();
+            product.Status = ProductStatus.Rejected;
+            product.RejectionReason = cleanReason;
 
             await WriteAuditAsync(
                 "InspectionRejected",
@@ -224,4 +226,3 @@ namespace Dawi.Controllers
             }).AsTask();
     }
 }
-
