@@ -122,6 +122,7 @@
                         <li class="nav-item">
                             <a class="nav-link fw-bold text-teal" asp-controller="Home" asp-action="Index">الرئيسية</a>
                         </li>
+
                         @if (User.IsInRole(Dawi.Models.Roles.Beneficiary))
                         {
                             <li class="nav-item"><a class="nav-link fw-semibold text-dark" asp-controller="Category" asp-action="Index">المنتجات</a></li>
@@ -144,13 +145,15 @@
                         }
                         <li class="nav-item"><a class="nav-link fw-semibold text-dark" asp-controller="Pharmacy" asp-action="Index">الصيدليات</a></li>
                     </ul>
-
+                  
                     <div class="d-flex align-items-center gap-2">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
+
                             <a asp-controller="Notification" asp-action="Index" class="btn btn-light btn-sm text-teal" title="الإشعارات">
                                 <i class="bi bi-bell-fill"></i>
                             </a>
+                           
                             <a asp-controller="Profile" asp-action="Index" class="btn btn-light btn-sm text-teal" title="الملف الشخصي">
                                 <i class="bi bi-person-circle"></i>
                             </a>

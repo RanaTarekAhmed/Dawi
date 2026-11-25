@@ -1,0 +1,40 @@
+﻿@model Dawi.ViewModels.EditProfileViewModel
+@{
+    ViewData["Title"] = "تعديل الملف الشخصي";
+}
+
+<div class="container my-5" dir="rtl">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card card-dawy shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="mb-4">تعديل بياناتي</h4>
+
+                    <form asp-action="Edit" method="post">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="FullName" class="form-label"></label>
+                            <input asp-for="FullName" class="form-control" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="PhoneNumber" class="form-label"></label>
+                            <input asp-for="PhoneNumber" class="form-control" dir="ltr" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-teal">حفظ التعديلات</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">إلغاء</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,104 @@
+﻿@* جرس الإشعارات الحي - يتحط في الـ Navbar جوه _Layout.cshtml:  <partial name="_NotificationBell" />  *@
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <div class="dropdown" id="notifBell" dir="rtl">
+        <a href="#" class="nav-link position-relative" id="notifToggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-bell fs-5"></i>
+            <span id="notifBadge" class="position-absolute top-0 start-0 translate-middle badge rounded-pill bg-danger d-none">0</span>
+        </a>
+        <div class="dropdown-menu dropdown-menu-end p-0 shadow" style="width:340px;max-height:420px;overflow-y:auto;" aria-labelledby="notifToggle">
+            <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+                <strong>الإشعارات</strong>
+                <button type="button" class="btn btn-link btn-sm p-0" id="notifMarkAll">تحديد الكل كمقروء</button>
+            </div>
+            <div id="notifList"><div class="text-center text-muted py-3">جاري التحميل...</div></div>
+            <a asp-controller="Notification" asp-action="Index" class="dropdown-item text-center py-2 border-top">عرض كل الإشعارات</a>
+        </div>
+        <form id="notifTokenForm" class="d-none">@Html.AntiForgeryToken()</form>
+    </div>
+
+    <script>
+        (function () {
+            var badge = document.getElementById('notifBadge');
+            var list = document.getElementById('notifList');
+            var toggle = document.getElementById('notifToggle');
+            var markAll = document.getElementById('notifMarkAll');
+            var token = document.querySelector('#notifTokenForm input[name="__RequestVerificationToken"]').value;
+
+            function esc(s) {
+                var d = document.createElement('div');
+                d.textContent = s == null ? '' : s;
+                return d.innerHTML;
+            }
+
+            function post(url, body) {
+                return fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'RequestVerificationToken': token
+                    },
+                    body: body || ''
+                });
+            }
+
+            function refreshCount() {
+                fetch('/Notification/UnreadCount')
+                    .then(function (r) { return r.json(); })
+                    .then(function (d) {
+                        if (d.count > 0) {
+                            badge.textContent = d.count > 99 ? '99+' : d.count;
+                            badge.classList.remove('d-none');
+                        } else {
+                            badge.classList.add('d-none');
+                        }
+                    })
+                    .catch(function () { });
+            }
+
+            function loadLatest() {
+                fetch('/Notification/Latest')
+                    .then(function (r) { return r.json(); })
+                    .then(function (items) {
+                        if (!items.length) {
+                            list.innerHTML = '<div class="text-center text-muted py-3">لا توجد إشعارات</div>';
+                            return;
+                        }
+                        list.innerHTML = items.map(function (n) {
+                            return '<a href="#" class="dropdown-item border-bottom py-2 notif-item ' + (n.isRead ? '' : 'bg-light fw-bold') + '"' +
+                                   ' data-id="' + n.id + '" data-link="' + esc(n.link || '') + '">' +
+                                   '<div class="text-wrap">' + esc(n.message) + '</div>' +
+                                   '<small class="text-muted">' + esc(n.date) + '</small></a>';
+                        }).join('');
+                    })
+                    .catch(function () {
+                        list.innerHTML = '<div class="text-center text-danger py-3">تعذر تحميل الإشعارات</div>';
+                    });
+            }
+
+            list.addEventListener('click', function (e) {
+                var item = e.target.closest('.notif-item');
+                if (!item) return;
+                e.preventDefault();
+                var link = item.getAttribute('data-link');
+                post('/Notification/MarkRead', 'id=' + item.getAttribute('data-id'))
+                    .finally(function () {
+                        if (link) { window.location.href = link; }
+                        else { item.classList.remove('bg-light', 'fw-bold'); refreshCount(); }
+                    });
+            });
+
+            markAll.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                post('/Notification/MarkAllRead').then(function () { loadLatest(); refreshCount(); });
+            });
+
+            toggle.addEventListener('show.bs.dropdown', loadLatest);
+
+            refreshCount();
+            setInterval(refreshCount, 30000);
+        })();
+    </script>
+}

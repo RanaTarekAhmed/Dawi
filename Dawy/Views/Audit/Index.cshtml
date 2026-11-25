@@ -1,0 +1,72 @@
+﻿@model List<Dawi.Models.AuditLog>
+@{
+    ViewData["Title"] = "سجل التدقيق";
+    string? q = ViewBag.Query as string;
+    int page = ViewBag.Page;
+    int totalPages = ViewBag.TotalPages;
+}
+
+<div class="container my-5" dir="rtl">
+    <h3 class="mb-4">سجل التدقيق</h3>
+
+    <form method="get" class="row g-2 mb-4">
+        <div class="col-md-6">
+            <input type="text" name="q" value="@q" class="form-control" placeholder="ابحث بالإجراء أو اسم الكيان..." />
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-teal">بحث</button>
+            @if (!string.IsNullOrWhiteSpace(q))
+            {
+                <a asp-action="Index" class="btn btn-outline-secondary">مسح</a>
+            }
+        </div>
+    </form>
+
+    <div class="card card-dawy shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>الإجراء</th>
+                        <th>الكيان</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="3" class="text-center text-muted py-4">لا توجد سجلات</td></tr>
+                    }
+                    @foreach (var a in Model)
+                    {
+                        <tr>
+                            <td dir="ltr" class="text-end">@a.CreatedAt.ToString("yyyy/MM/dd HH:mm")</td>
+                            <td>@a.Action</td>
+                            <td>@a.EntityName</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @if (totalPages > 1)
+    {
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(page <= 1 ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-q="@q" asp-route-page="@(page - 1)">السابق</a>
+                </li>
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == page ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-q="@q" asp-route-page="@i">@i</a>
+                    </li>
+                }
+                <li class="page-item @(page >= totalPages ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-q="@q" asp-route-page="@(page + 1)">التالي</a>
+                </li>
+            </ul>
+        </nav>
+    }
+</div>

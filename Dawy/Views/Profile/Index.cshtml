@@ -1,0 +1,40 @@
+﻿
+@model Dawi.Models.User
+@{
+    ViewData["Title"] = "الملف الشخصي";
+}
+
+<div class="container my-5" dir="rtl">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">@TempData["Success"]</div>
+            }
+
+            <div class="card card-dawy shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center ms-3"
+                             style="width:64px;height:64px;font-size:28px;">
+                            @(Model.FullName.Length > 0 ? Model.FullName.Substring(0, 1) : "؟")
+                        </div>
+                        <div>
+                            <h4 class="mb-0">@Model.FullName</h4>
+                            <small class="text-muted">@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</small>
+                        </div>
+                    </div>
+
+                    <dl class="row mb-4">
+                        <dt class="col-sm-4">البريد الإلكتروني</dt>
+                        <dd class="col-sm-8">@Model.Email</dd>
+                        <dt class="col-sm-4">رقم الموبايل</dt>
+                        <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "—" : Model.PhoneNumber)</dd>
+                    </dl>
+
+                    <a asp-action="Edit" class="btn btn-teal">تعديل البيانات</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
