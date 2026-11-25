@@ -99,7 +99,7 @@ Dawy/
 ## 🏢 Organization, Supervision & Team
 
 - **Organization:** YAT
-- **Instructor:** Eng. Eyad Ali
+- **Instructor:** Eng. Ayed Ali
 
 ### Team Members
 - Keroles
