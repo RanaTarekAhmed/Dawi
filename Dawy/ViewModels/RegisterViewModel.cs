@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace Dawi.ViewModels
 {
@@ -56,6 +57,12 @@ namespace Dawi.ViewModels
         [StringLength(20)]
         [Display(Name = "Pharmacy Phone")]
         public string? PharmacyPhoneNumber { get; set; }
+
+        [Display(Name = "Pharmacy License Document")]
+        public IFormFile? PharmacyLicenseFile { get; set; }
+
+        [Display(Name = "Pharmacy Identity Document")]
+        public IFormFile? PharmacyIdentityFile { get; set; }
     }
 }
 

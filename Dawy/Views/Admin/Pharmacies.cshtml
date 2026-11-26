@@ -1,11 +1,61 @@
 @model IEnumerable<Dawi.Models.Pharmacy>
-@{ ViewData["Title"]="إدارة الصيدليات"; }
+@{ ViewData["Title"]="مراجعة الصيدليات"; }
 <div class="row g-4"><div class="col-lg-3">@await Html.PartialAsync("_AdminSidebar")</div><div class="col-lg-9">
-<h2 class="text-teal fw-bold mb-3">اعتماد الصيدليات</h2>
+<h2 class="text-teal fw-bold mb-3">مراجعة أوراق الصيدليات واعتمادها</h2>
 @if(TempData["Success"]!=null){<div class="alert alert-success">@TempData["Success"]</div>} @if(TempData["Error"]!=null){<div class="alert alert-danger">@TempData["Error"]</div>}
-<form method="get" class="dawy-card p-3 mb-3 row g-2 align-items-end"><div class="col-md-5"><label class="form-label">اسم الصيدلية أو المدينة</label><input name="search" class="form-control" value="@ViewBag.Search"/></div><div class="col-md-4"><label class="form-label">حالة الاعتماد</label><select class="form-select" name="verified"><option value="">الكل</option><option value="true" selected="@(ViewBag.Verified is bool b && b)">معتمدة</option><option value="false" selected="@(ViewBag.Verified is bool b2 && !b2)">غير معتمدة</option></select></div><div class="col-md-3"><button class="btn btn-teal w-100">تصفية</button></div></form>
-<div class="dawy-card p-3 table-responsive"><table class="table align-middle"><thead><tr><th>الصيدلية</th><th>الصيدلي</th><th>المدينة</th><th>التواصل</th><th>الحالة</th><th></th></tr></thead><tbody>
-@foreach(var p in Model){<tr><td><strong>@p.PharmacyName</strong><small class="d-block text-muted">@p.Address</small></td><td>@(p.Pharmacist?.FullName??"—")</td><td>@p.City</td><td>@p.PhoneNumber</td><td><span class="badge @(p.IsVerified?"bg-success":"bg-warning text-dark")">@(p.IsVerified?"معتمدة":"بانتظار الاعتماد")</span></td><td><form asp-action="VerifyPharmacy" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@p.PharmacyId"/><input type="hidden" name="verified" value="@(!p.IsVerified)"/><button class="btn btn-sm @(p.IsVerified?"btn-outline-danger":"btn-teal")">@(p.IsVerified?"إلغاء الاعتماد":"اعتماد")</button></form></td></tr>}
+<form method="get" class="dawy-card p-3 mb-3 row g-2 align-items-end">
+    <div class="col-md-4"><label class="form-label">اسم الصيدلية أو المدينة</label><input name="search" class="form-control" value="@ViewBag.Search"/></div>
+    <div class="col-md-3"><label class="form-label">حالة الاعتماد</label><select class="form-select" name="verified"><option value="">الكل</option><option value="true" selected="@(ViewBag.Verified is bool b && b)">معتمدة</option><option value="false" selected="@(ViewBag.Verified is bool b2 && !b2)">غير معتمدة</option></select></div>
+    <div class="col-md-3"><label class="form-label">حالة المراجعة</label><select class="form-select" name="reviewStatus"><option value="">الكل</option><option value="@Dawi.Models.PharmacyRegistrationStatus.Pending" selected="@(ViewBag.ReviewStatus==Dawi.Models.PharmacyRegistrationStatus.Pending)">بانتظار المراجعة</option><option value="@Dawi.Models.PharmacyRegistrationStatus.Approved" selected="@(ViewBag.ReviewStatus==Dawi.Models.PharmacyRegistrationStatus.Approved)">تمت المراجعة</option><option value="@Dawi.Models.PharmacyRegistrationStatus.Rejected" selected="@(ViewBag.ReviewStatus==Dawi.Models.PharmacyRegistrationStatus.Rejected)">مرفوضة</option></select></div>
+    <div class="col-md-2"><button class="btn btn-teal w-100">تصفية</button></div>
+</form>
+<div class="dawy-card p-3 table-responsive"><table class="table align-middle"><thead><tr><th>الصيدلية</th><th>الصيدلي</th><th>المدينة</th><th>الأوراق المرفقة</th><th>حالة المراجعة</th><th>قرار الإدارة</th></tr></thead><tbody>
+@foreach(var p in Model)
+{
+    <tr>
+        <td><strong>@p.PharmacyName</strong><small class="d-block text-muted">@p.Address</small><small class="d-block text-muted" dir="ltr">@p.PhoneNumber</small></td>
+        <td>@(p.Pharmacist?.FullName ?? "—")</td>
+        <td>@p.City</td>
+        <td>
+            @if(!string.IsNullOrEmpty(p.LicenseDocumentUrl)){<a href="@p.LicenseDocumentUrl" target="_blank" rel="noopener" class="btn btn-sm btn-outline-info mb-1">رخصة المهنة</a>}else{<small class="d-block text-muted">الرخصة غير مرفقة</small>}
+            @if(!string.IsNullOrEmpty(p.IdentityDocumentUrl)){<a href="@p.IdentityDocumentUrl" target="_blank" rel="noopener" class="btn btn-sm btn-outline-info mb-1">البطاقة/السجل</a>}else{<small class="d-block text-muted">البطاقة غير مرفقة</small>}
+        </td>
+        <td>
+            @if(p.IsVerified)
+            {
+                <span class="badge bg-success">معتمدة</span>
+            }
+            else if(p.RegistrationStatus == Dawi.Models.PharmacyRegistrationStatus.Rejected)
+            {
+                <span class="badge bg-danger">أوراق مرفوضة</span>
+                @if(!string.IsNullOrEmpty(p.RegistrationRejectionReason)){<small class="d-block text-muted">السبب: @p.RegistrationRejectionReason</small>}
+            }
+            else
+            {
+                <span class="badge bg-warning text-dark">قيد مراجعة الأوراق</span>
+            }
+            @if(p.ReviewedAt.HasValue){<small class="d-block text-muted">آخر مراجعة: @p.ReviewedAt.Value.ToString("yyyy/MM/dd")</small>}
+        </td>
+        <td>
+            @if(p.IsVerified)
+            {
+                <form asp-action="VerifyPharmacy" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@p.PharmacyId"/><input type="hidden" name="verified" value="false"/><button class="btn btn-sm btn-outline-danger">إلغاء الاعتماد</button></form>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-2">
+                    <form asp-action="VerifyPharmacy" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@p.PharmacyId"/><input type="hidden" name="verified" value="true"/><button class="btn btn-sm btn-teal">مراجعة واعتماد</button></form>
+                    @if(p.RegistrationStatus == Dawi.Models.PharmacyRegistrationStatus.Rejected)
+                    {
+                        <form asp-action="ReopenPharmacyRegistration" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@p.PharmacyId"/><button class="btn btn-sm btn-outline-secondary">إعادة للمراجعة</button></form>
+                    }
+                    else
+                    {
+                        <form asp-action="RejectPharmacyRegistration" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@p.PharmacyId"/><input name="reason" class="form-control form-control-sm mb-1" placeholder="سبب الرفض" required/><button class="btn btn-sm btn-outline-danger">رفض الأوراق</button></form>
+                    }
+                </div>
+            }
+        </td>
+    </tr>
+}
 </tbody></table></div></div></div>
-
-

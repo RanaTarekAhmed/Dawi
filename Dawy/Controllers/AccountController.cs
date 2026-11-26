@@ -1,7 +1,9 @@
 using System.Security.Claims;
 using Dawi.Data;
 using Dawi.Models;
+using Dawi.Services;
 using Dawi.ViewModels;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -15,11 +17,13 @@ namespace Dawi.Controllers
     {
         private readonly DawiContext _context;
         private readonly IPasswordHasher<User> _passwordHasher;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public AccountController(DawiContext context, IPasswordHasher<User> passwordHasher)
+        public AccountController(DawiContext context, IPasswordHasher<User> passwordHasher, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _passwordHasher = passwordHasher;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // GET: /Account/Register
@@ -41,14 +45,20 @@ namespace Dawi.Controllers
         {
             if (!ModelState.IsValid)
                 return View(model);
-
-            if (!Roles.SelfAssignable.Contains(model.Role))
+            var requstedRole = model.Role?.Trim() ?? string.Empty;
+            if (string.Equals(requstedRole,Roles.Admin, StringComparison.OrdinalIgnoreCase))
+            {
+                ModelState.AddModelError(nameof(model.Role), "لا يمكن إنشاء حساب مدير من صفحة التسجيل.");
+                return View(model);
+            }
+            if (!Roles.IsSelfAssignable(requstedRole))
             {
                 ModelState.AddModelError(nameof(model.Role), "نوع الحساب غير صالح.");
                 return View(model);
             }
 
-            if (model.Role == Roles.Pharmacist)
+
+            if (requstedRole == Roles.Pharmacist)
             {
                 if (string.IsNullOrWhiteSpace(model.PharmacyName))
                     ModelState.AddModelError(nameof(model.PharmacyName), "اسم الصيدلية مطلوب.");
@@ -61,6 +71,12 @@ namespace Dawi.Controllers
 
                 if (string.IsNullOrWhiteSpace(model.PharmacyPhoneNumber))
                     ModelState.AddModelError(nameof(model.PharmacyPhoneNumber), "رقم هاتف الصيدلية مطلوب.");
+
+                if (model.PharmacyLicenseFile == null || model.PharmacyLicenseFile.Length == 0)
+                    ModelState.AddModelError(nameof(model.PharmacyLicenseFile), "يرجى رفع رخصة مزاولة المهنة.");
+
+                if (model.PharmacyIdentityFile == null || model.PharmacyIdentityFile.Length == 0)
+                    ModelState.AddModelError(nameof(model.PharmacyIdentityFile), "يرجى رفع صورة البطاقة أو السجل التجاري.");
 
                 if (!ModelState.IsValid)
                     return View(model);
@@ -81,19 +97,39 @@ namespace Dawi.Controllers
                 return View(model);
             }
 
+            string? licenseUrl = null;
+            string? identityUrl = null;
+            if (requstedRole == Roles.Pharmacist)
+            {
+                var (licenseResult, licenseError) = await DocumentUploader.SaveAsync(
+                    model.PharmacyLicenseFile, _webHostEnvironment, "pharmacy-documents", "رخصة الصيدلية");
+                if (licenseError != null)
+                    ModelState.AddModelError(nameof(model.PharmacyLicenseFile), licenseError);
+                licenseUrl = licenseResult;
+
+                var (identityResult, identityError) = await DocumentUploader.SaveAsync(
+                    model.PharmacyIdentityFile, _webHostEnvironment, "pharmacy-documents", "صورة البطاقة أو السجل التجاري");
+                if (identityError != null)
+                    ModelState.AddModelError(nameof(model.PharmacyIdentityFile), identityError);
+                identityUrl = identityResult;
+
+                if (!ModelState.IsValid)
+                    return View(model);
+            }
+
             var user = new User
             {
                 FullName = model.FullName.Trim(),
                 Email = email,
                 PhoneNumber = model.PhoneNumber?.Trim(),
                 NationalId = nationalId,
-                Role = model.Role,
+                Role = requstedRole,
                 CreatedAt = DateTime.UtcNow
             };
 
             user.PasswordHash = _passwordHasher.HashPassword(user, model.Password);
 
-            if (model.Role == Roles.Pharmacist)
+            if (requstedRole == Roles.Pharmacist)
             {
                 user.ManagedPharmacies.Add(new Pharmacy
                 {
@@ -101,7 +137,10 @@ namespace Dawi.Controllers
                     Address = model.PharmacyAddress!.Trim(),
                     City = model.PharmacyCity!.Trim(),
                     PhoneNumber = model.PharmacyPhoneNumber!.Trim(),
-                    IsVerified = false
+                    IsVerified = false,
+                    RegistrationStatus = PharmacyRegistrationStatus.Pending,
+                    LicenseDocumentUrl = licenseUrl,
+                    IdentityDocumentUrl = identityUrl
                 });
             }
 
@@ -115,6 +154,15 @@ namespace Dawi.Controllers
             {
                 ModelState.AddModelError(string.Empty, "تعذر إنشاء الحساب. قد يكون البريد الإلكتروني أو الرقم القومي مسجلاً بالفعل.");
                 return View(model);
+            }
+
+            if (requstedRole == Roles.Pharmacist)
+            {
+                await NotifyAdminsAsync(
+                    "صيدلية جديدة بانتظار المراجعة",
+                    $"تم تسجيل الصيدلية '{model.PharmacyName!.Trim()}' ورفع أوراقها. يرجى المراجعة قبل الاعتماد.",
+                    "/Admin/Pharmacies");
+                await _context.SaveChangesAsync();
             }
 
             await SignInUserAsync(user, isPersistent: false);
@@ -203,6 +251,30 @@ namespace Dawi.Controllers
         }
 
         // ---------------------- Helpers ----------------------
+
+        private async Task NotifyAdminsAsync(string title, string message, string? link)
+        {
+            var adminIds = await _context.Users
+                .AsNoTracking()
+                .Where(u => u.Role == Roles.Admin && u.IsActive)
+                .Select(u => u.UserId)
+                .ToListAsync();
+
+            foreach (var adminId in adminIds)
+            {
+                await NotifyAsync(adminId, title, message, link);
+            }
+        }
+
+        private Task NotifyAsync(int userId, string title, string message, string? link) =>
+            _context.Notifications.AddAsync(new Notification
+            {
+                UserId = userId,
+                Title = title,
+                Message = message,
+                Link = link,
+                CreatedAt = DateTime.UtcNow
+            }).AsTask();
 
         private async Task SignInUserAsync(User user, bool isPersistent)
         {

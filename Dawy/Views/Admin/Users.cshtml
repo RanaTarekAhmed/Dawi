@@ -11,7 +11,7 @@
 <div class="dawy-card p-3 table-responsive"><table class="table align-middle"><thead><tr><th>المستخدم</th><th>البريد</th><th>الدور</th><th>الحالة</th><th>الإجراءات</th></tr></thead><tbody>
 @foreach(var u in Model){<tr><td>@u.FullName<small class="d-block text-muted">#@u.UserId</small></td><td>@u.Email</td><td>
 <form asp-action="SetUserRole" method="post" class="d-flex gap-1">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@u.UserId"/><select name="role" class="form-select form-select-sm">@foreach(var r in new[]{"Admin","Donor","Beneficiary","Pharmacist"}){<option value="@r" selected="@(u.Role==r)">@r</option>}</select><button class="btn btn-outline-teal btn-sm">حفظ</button></form>
-</td><td><span class="badge @(u.IsActive?"bg-success":"bg-secondary")">@(u.IsActive?"نشط":"معطل")</span></td><td><form asp-action="SetUserStatus" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@u.UserId"/><input type="hidden" name="isActive" value="@(!u.IsActive)"/><button class="btn btn-sm @(u.IsActive?"btn-outline-danger":"btn-outline-success")">@(u.IsActive?"تعطيل":"تفعيل")</button></form></td></tr>}
+</td><td><span class="badge @(u.IsActive?"bg-success":"bg-secondary")">@(u.IsActive?"نشط":"معطل")</span></td><td><form asp-action="SetUserStatus" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@u.UserId"/><input type="hidden" name="isActive" value="@((!u.IsActive).ToString().ToLowerInvariant())"/><button class="btn btn-sm @(u.IsActive?"btn-outline-danger":"btn-outline-success")">@(u.IsActive?"تعطيل":"تفعيل")</button></form></td></tr>}
 </tbody></table></div></div></div>
 
 

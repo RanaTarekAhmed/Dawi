@@ -1,12 +1,52 @@
 @model IEnumerable<Dawi.Models.Product>
 @{ ViewData["Title"]="مراجعة التبرعات"; }
 <div class="row g-4"><div class="col-lg-3">@await Html.PartialAsync("_AdminSidebar")</div><div class="col-lg-9">
-<h2 class="text-teal fw-bold mb-3">مراجعة التبرعات</h2>
+<h2 class="text-teal fw-bold mb-3">مراجعة التبرعات قبل الفحص الصيدلي</h2>
 @if(TempData["Success"]!=null){<div class="alert alert-success">@TempData["Success"]</div>} @if(TempData["Error"]!=null){<div class="alert alert-danger">@TempData["Error"]</div>}
-<form method="get" class="dawy-card p-3 mb-3 row g-2 align-items-end"><div class="col-md-5"><label class="form-label">بحث</label><input name="search" class="form-control" value="@ViewBag.Search" placeholder="اسم المنتج أو الفئة"/></div><div class="col-md-4"><label class="form-label">الحالة</label><select name="status" class="form-select"><option value="">كل الحالات</option>@foreach(var s in new[]{"Pending","Approved","Rejected"}){<option value="@s" selected="@(ViewBag.Status==s)">@s</option>}</select></div><div class="col-md-3"><button class="btn btn-teal w-100">تصفية</button></div></form>
-<div class="dawy-card p-3 table-responsive"><table class="table align-middle"><thead><tr><th>التبرع</th><th>المتبرع</th><th>الفئة</th><th>الكمية</th><th>الحالة</th><th>قرار</th></tr></thead><tbody>
-@foreach(var p in Model){<tr><td>@p.ProductName<small class="d-block text-muted">انتهاء: @p.ExpiryDate</small></td><td>@p.Donor?.FullName</td><td>@p.Category</td><td>@p.Quantity</td><td><span class="badge @(p.Status=="Approved"?"bg-success":p.Status=="Rejected"?"bg-danger":"bg-warning text-dark")">@p.Status</span>@if(!string.IsNullOrEmpty(p.RejectionReason)){<small class="d-block text-muted">السبب: @p.RejectionReason</small>}</td><td>
-@if(p.Status=="Pending"){<div class="d-flex flex-column gap-2"><form asp-action="ModerateProduct" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@p.ProductId"/><input type="hidden" name="status" value="Approved"/><button class="btn btn-sm btn-success">قبول</button></form><form asp-action="ModerateProduct" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@p.ProductId"/><input type="hidden" name="status" value="Rejected"/><input name="reason" class="form-control form-control-sm mb-1" placeholder="سبب الرفض (اختياري)"/><button class="btn btn-sm btn-outline-danger">رفض</button></form></div>}else{<span class="text-muted">تمت المراجعة</span>}</td></tr>}
+<div class="alert alert-info small py-2">التبرع يمر أولاً على الإدارة، وبعد الموافقة يُحال إلى الصيدلية المختارة لفحصه واعتماده النهائي.</div>
+<form method="get" class="dawy-card p-3 mb-3 row g-2 align-items-end">
+    <div class="col-md-5"><label class="form-label">بحث</label><input name="search" class="form-control" value="@ViewBag.Search" placeholder="اسم المنتج أو الفئة"/></div>
+    <div class="col-md-5"><label class="form-label">الحالة</label><select name="status" class="form-select"><option value="">كل الحالات</option><option value="@Dawi.Models.ProductStatus.AdminPending" selected="@(ViewBag.Status==Dawi.Models.ProductStatus.AdminPending)">بانتظار مراجعة الإدارة</option><option value="@Dawi.Models.ProductStatus.Pending" selected="@(ViewBag.Status==Dawi.Models.ProductStatus.Pending)">بانتظار فحص الصيدلية</option><option value="@Dawi.Models.ProductStatus.Approved" selected="@(ViewBag.Status==Dawi.Models.ProductStatus.Approved)">معتمد</option><option value="@Dawi.Models.ProductStatus.Rejected" selected="@(ViewBag.Status==Dawi.Models.ProductStatus.Rejected)">مرفوض</option></select></div>
+    <div class="col-md-2"><button class="btn btn-teal w-100">تصفية</button></div>
+</form>
+<div class="dawy-card p-3 table-responsive"><table class="table align-middle"><thead><tr><th>التبرع</th><th>المتبرع</th><th>الصيدلية</th><th>الكمية</th><th>الحالة</th><th>قرار الإدارة</th></tr></thead><tbody>
+@foreach(var p in Model)
+{
+    <tr>
+        <td>
+            <strong>@p.ProductName</strong>
+            <small class="d-block text-muted">الفئة: @p.Category</small>
+            <small class="d-block text-muted">انتهاء: @p.ExpiryDate</small>
+            @if(!string.IsNullOrEmpty(p.ProductImageUrl)){<a href="@p.ProductImageUrl" target="_blank" rel="noopener" class="small">صورة العبوة</a>}
+        </td>
+        <td>@p.Donor?.FullName</td>
+        <td>@(p.Pharmacy?.PharmacyName ?? "—")</td>
+        <td>@p.Quantity</td>
+        <td>
+            @if(p.Status == Dawi.Models.ProductStatus.AdminPending){<span class="badge bg-warning text-dark">بانتظار مراجعة الإدارة</span>}
+            else if(p.Status == Dawi.Models.ProductStatus.Pending){<span class="badge bg-info text-dark">بانتظار فحص الصيدلية</span>}
+            else if(p.Status == Dawi.Models.ProductStatus.Approved){<span class="badge bg-success">معتمد</span>}
+            else if(p.Status == Dawi.Models.ProductStatus.Rejected){<span class="badge bg-danger">مرفوض</span>}
+            else {<span class="badge bg-secondary">@p.Status</span>}
+            @if(!string.IsNullOrEmpty(p.RejectionReason)){<small class="d-block text-muted">السبب: @p.RejectionReason</small>}
+        </td>
+        <td>
+            @if(p.Status == Dawi.Models.ProductStatus.AdminPending)
+            {
+                <div class="d-flex flex-column gap-2">
+                    <form asp-action="ModerateProduct" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@p.ProductId"/><input type="hidden" name="status" value="@Dawi.Models.ProductStatus.Approved"/><button class="btn btn-sm btn-success">قبول وإرسال للصيدلية</button></form>
+                    <form asp-action="ModerateProduct" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@p.ProductId"/><input type="hidden" name="status" value="@Dawi.Models.ProductStatus.Rejected"/><input name="reason" class="form-control form-control-sm mb-1" placeholder="سبب الرفض (اختياري)"/><button class="btn btn-sm btn-outline-danger">رفض</button></form>
+                </div>
+            }
+            else if(p.Status == Dawi.Models.ProductStatus.Pending)
+            {
+                <span class="text-muted small">تمت المراجعة الإدارية — بانتظار فحص الصيدلي</span>
+            }
+            else
+            {
+                <span class="text-muted">تمت المراجعة</span>
+            }
+        </td>
+    </tr>
+}
 </tbody></table></div></div></div>
-
-

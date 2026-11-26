@@ -21,6 +21,7 @@ namespace Dawi.Controllers
             ViewBag.VerifiedPharmacies = await _context.Pharmacies.CountAsync(p => p.IsVerified);
             ViewBag.UnverifiedPharmacies = await _context.Pharmacies.CountAsync(p => !p.IsVerified);
 
+            ViewBag.AdminPendingProducts = await _context.Products.CountAsync(p => p.Status == ProductStatus.AdminPending);
             ViewBag.PendingProducts = await _context.Products.CountAsync(p => p.Status == ProductStatus.Pending);
             ViewBag.ApprovedProducts = await _context.Products.CountAsync(p => p.Status == ProductStatus.Approved);
             ViewBag.RejectedProducts = await _context.Products.CountAsync(p => p.Status == ProductStatus.Rejected);
@@ -108,10 +109,11 @@ namespace Dawi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Pharmacies(bool? verified = null, string? search = null)
+        public async Task<IActionResult> Pharmacies(bool? verified = null, string? search = null, string? reviewStatus = null)
         {
             var query = _context.Pharmacies.AsNoTracking().Include(p => p.Pharmacist).AsQueryable();
             if (verified.HasValue) query = query.Where(p => p.IsVerified == verified.Value);
+            if (!string.IsNullOrWhiteSpace(reviewStatus)) query = query.Where(p => p.RegistrationStatus == reviewStatus);
             if (!string.IsNullOrWhiteSpace(search))
             {
                 var term = search.Trim();
@@ -128,6 +130,7 @@ namespace Dawi.Controllers
 
             ViewBag.Verified = verified;
             ViewBag.Search = search;
+            ViewBag.ReviewStatus = reviewStatus;
 
             return View(pharmacies);
         }
@@ -143,13 +146,98 @@ namespace Dawi.Controllers
                 TempData["Error"] = "Pharmacy not found.";
                 return RedirectToAction(nameof(Pharmacies));
             }
+
+            if (verified)
+            {
+                if (string.IsNullOrEmpty(pharmacy.LicenseDocumentUrl) || string.IsNullOrEmpty(pharmacy.IdentityDocumentUrl))
+                {
+                    TempData["Error"] = "لا يمكن الاعتماد قبل رفع أوراق التقديم كاملة.";
+                    return RedirectToAction(nameof(Pharmacies));
+                }
+
+                pharmacy.RegistrationStatus = PharmacyRegistrationStatus.Approved;
+                pharmacy.RegistrationRejectionReason = null;
+                pharmacy.ReviewedAt = DateTime.UtcNow;
+                pharmacy.ReviewedByAdminId = CurrentUserId;
+            }
+
             pharmacy.IsVerified = verified;
-            await WriteAuditAsync("PharmacyVerificationChanged", nameof(Pharmacy), id, $"IsVerified={verified}");
+            await WriteAuditAsync("PharmacyVerificationChanged", nameof(Pharmacy), id,
+                $"IsVerified={verified}, RegistrationStatus={pharmacy.RegistrationStatus}");
+
             if (pharmacy.PharmacistId.HasValue)
-                await NotifyAsync(pharmacy.PharmacistId.Value, "Pharmacy verification", verified ? "Your pharmacy has been verified." : "Your pharmacy verification was revoked.", "/Profile");
+            {
+                var title = verified ? "اعتماد الصيدلية" : "إلغاء اعتماد الصيدلية";
+                var message = verified
+                    ? $"تمت مراجعة أوراق صيدليتك '{pharmacy.PharmacyName}' واعتمادها. يمكنك الآن استقبال التبرعات."
+                    : "تم إلغاء اعتماد صيدليتك.";
+                await NotifyAsync(pharmacy.PharmacistId.Value, title, message, "/Pharmacy/MyPharmacies");
+            }
+
             await _context.SaveChangesAsync();
-            TempData["Success"] = verified ? "Pharmacy verified successfully." : "Pharmacy verification revoked.";
-            return RedirectToAction(nameof(Pharmacies)); 
+            TempData["Success"] = verified ? "تمت مراجعة الأوراق واعتماد الصيدلية." : "تم إلغاء اعتماد الصيدلية.";
+            return RedirectToAction(nameof(Pharmacies));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RejectPharmacyRegistration(int id, string? reason)
+        {
+            var pharmacy = await _context.Pharmacies.FindAsync(id);
+            if (pharmacy == null)
+            {
+                TempData["Error"] = "Pharmacy not found.";
+                return RedirectToAction(nameof(Pharmacies));
+            }
+
+            if (string.IsNullOrWhiteSpace(reason))
+            {
+                TempData["Error"] = "يرجى كتابة سبب رفض أوراق التقديم.";
+                return RedirectToAction(nameof(Pharmacies));
+            }
+
+            var cleanReason = reason.Trim();
+            pharmacy.RegistrationStatus = PharmacyRegistrationStatus.Rejected;
+            pharmacy.RegistrationRejectionReason = cleanReason;
+            pharmacy.IsVerified = false;
+            pharmacy.ReviewedAt = DateTime.UtcNow;
+            pharmacy.ReviewedByAdminId = CurrentUserId;
+
+            await WriteAuditAsync("PharmacyRegistrationRejected", nameof(Pharmacy), id, cleanReason);
+
+            if (pharmacy.PharmacistId.HasValue)
+                await NotifyAsync(pharmacy.PharmacistId.Value, "رفض أوراق الصيدلية",
+                    $"تم رفض أوراق صيدليتك '{pharmacy.PharmacyName}'. السبب: {cleanReason}. يمكنك تعديل الأوراق وإعادة الإرسال.",
+                    "/Pharmacy/Edit/" + id);
+
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "تم رفض أوراق التقديم وإبلاغ الصيدلي بالسبب.";
+            return RedirectToAction(nameof(Pharmacies));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReopenPharmacyRegistration(int id)
+        {
+            var pharmacy = await _context.Pharmacies.FindAsync(id);
+            if (pharmacy == null)
+            {
+                TempData["Error"] = "Pharmacy not found.";
+                return RedirectToAction(nameof(Pharmacies));
+            }
+
+            pharmacy.RegistrationStatus = PharmacyRegistrationStatus.Pending;
+            pharmacy.RegistrationRejectionReason = null;
+            await WriteAuditAsync("PharmacyRegistrationReopened", nameof(Pharmacy), id, "Reopened for review");
+
+            if (pharmacy.PharmacistId.HasValue)
+                await NotifyAsync(pharmacy.PharmacistId.Value, "إعادة فتح مراجعة الصيدلية",
+                    "تمت إعادة طلب مراجعة صيدليتك. تأكد من تحديث الأوراق إذا لزم الأمر.",
+                    "/Pharmacy/Edit/" + id);
+
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "تمت إعادة الصيدلية إلى قائمة المراجعة.";
+            return RedirectToAction(nameof(Pharmacies));
         }
 
             [HttpGet]
@@ -188,30 +276,63 @@ namespace Dawi.Controllers
                 TempData["Error"] = "Status must be Approved or Rejected.";
                 return RedirectToAction(nameof(Products));
             }
-            var product = await _context.Products.FindAsync(id);
+
+            var product = await _context.Products
+                .Include(p => p.Pharmacy)
+                .FirstOrDefaultAsync(p => p.ProductId == id);
             if (product == null)
             {
                 TempData["Error"] = "Product not found.";
                 return RedirectToAction(nameof(Products));
             }
+
+            if (product.Status != ProductStatus.AdminPending)
+            {
+                TempData["Error"] = product.Status == ProductStatus.Pending
+                    ? "تمت مراجعة هذا التبرع إدارياً وهو الآن بانتظار فحص الصيدلية."
+                    : "تمت مراجعة هذا التبرع مسبقاً.";
+                return RedirectToAction(nameof(Products));
+            }
+
             var cleanReason = string.IsNullOrWhiteSpace(reason) ? null : reason.Trim();
-            product.Status = status;
-            if (status == ProductStatus.Rejected)
+
+            if (status == ProductStatus.Approved)
+            {
+                product.Status = ProductStatus.Pending;
+                product.RejectionReason = null;
+
+                await WriteAuditAsync("AdminDonationApproved", nameof(Product), id,
+                    $"Sent to pharmacy for inspection: {product.Pharmacy?.PharmacyName ?? "—"}");
+
+                var pharmacistId = product.Pharmacy?.PharmacistId;
+                if (pharmacistId.HasValue)
+                    await NotifyAsync(pharmacistId.Value, "تبرع جديد بانتظار الفحص",
+                        $"اجتاز تبرع '{product.ProductName}' المراجعة الإدارية وهو بانتظار فحصك في الصيدلية.",
+                        "/Inspection");
+
+                await NotifyAsync(product.DonorId, "تحديث حالة التبرع",
+                    $"تمت المراجعة الإدارية لتبرعك '{product.ProductName}' وهو الآن بانتظار فحص الصيدلية.",
+                    "/Donation");
+
+                TempData["Success"] = "تمت المراجعة الإدارية وإرسال التبرع للصيدلية لفحصه.";
+            }
+            else
+            {
+                product.Status = ProductStatus.Rejected;
                 product.RejectionReason = cleanReason;
 
-            await WriteAuditAsync("ProductModerated", nameof(Product), id, cleanReason ?? status);
-            await NotifyAsync(
-                product.DonorId,
-                "Donation status updated",
-                $"Your donation '{product.ProductName}' is {status.ToLowerInvariant()}.",
-                "/Donation");
+                await WriteAuditAsync("AdminDonationRejected", nameof(Product), id, cleanReason ?? "Rejected by admin");
+                await NotifyAsync(product.DonorId, "تم رفض تبرعك",
+                    $"نعتذر، لم يتم قبول تبرعك '{product.ProductName}' بعد المراجعة الإدارية." +
+                    (cleanReason != null ? $" السبب: {cleanReason}" : string.Empty),
+                    "/Donation");
+
+                TempData["Success"] = "تم رفض التبرع وإبلاغ المتبرع.";
+            }
 
             await _context.SaveChangesAsync();
-
-            TempData["Success"] = $"Product status updated to {status}.";
             return RedirectToAction(nameof(Products));
-        
-    }
+        }
 
         private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 

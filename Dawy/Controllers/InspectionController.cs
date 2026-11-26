@@ -35,6 +35,9 @@ namespace Dawi.Controllers
             {
                 var myPharmacyIds = await GetMyPharmacyIdsAsync();
                 query = query.Where(p => p.PharmacyId.HasValue && myPharmacyIds.Contains(p.PharmacyId.Value));
+
+                // التبرعات لا تصل للصيدلي إلا بعد مراجعة الإدارة لها
+                query = query.Where(p => p.Status != ProductStatus.AdminPending);
             }
 
             var allScopedProducts = await query
@@ -196,6 +199,9 @@ namespace Dawi.Controllers
         {
             if (User.IsInRole(Roles.Admin))
                 return true;
+
+            if (product.Status == ProductStatus.AdminPending)
+                return false;
 
             if (!User.IsInRole(Roles.Pharmacist) || !product.PharmacyId.HasValue)
                 return false;

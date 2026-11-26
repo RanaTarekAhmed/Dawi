@@ -32,7 +32,7 @@
                 </div>
             }
 
-            <form asp-action="Register" method="post" id="registerForm" novalidate>
+            <form asp-action="Register" method="post" enctype="multipart/form-data" id="registerForm" novalidate>
                 @Html.AntiForgeryToken()
 
                 <!-- اختيار نوع الحساب (الكروت كما في التصميم) -->
@@ -41,7 +41,7 @@
 
                 <div class="row g-3 mb-4 text-center">
                     <!-- كارت مستفيد -->
-                    <div class="col-6 col-sm-3">
+                    <div class="col-6 col-sm-4">
                         <div class="role-card p-3 border rounded-3 cursor-pointer @(selectedRole == Roles.Beneficiary ? "active" : "")"
                              onclick="selectRole('@Roles.Beneficiary', this)">
                             <div class="role-icon mb-2 fs-3 text-teal">
@@ -52,7 +52,7 @@
                     </div>
 
                     <!-- كارت متبرع -->
-                    <div class="col-6 col-sm-3">
+                    <div class="col-6 col-sm-4">
                         <div class="role-card p-3 border rounded-3 cursor-pointer @(selectedRole == Roles.Donor ? "active" : "")"
                              onclick="selectRole('@Roles.Donor', this)">
                             <div class="role-icon mb-2 fs-3 text-teal">
@@ -63,7 +63,7 @@
                     </div>
 
                     <!-- كارت صيدلي -->
-                    <div class="col-6 col-sm-3">
+                    <div class="col-6 col-sm-4">
                         <div class="role-card p-3 border rounded-3 cursor-pointer @(selectedRole == Roles.Pharmacist ? "active" : "")"
                              onclick="selectRole('@Roles.Pharmacist', this)">
                             <div class="role-icon mb-2 fs-3 text-teal">
@@ -73,15 +73,6 @@
                         </div>
                     </div>
 
-                    <!-- كارت مدير النظام (معطل للتسجيل الذاتي) -->
-                    <div class="col-6 col-sm-3">
-                        <div class="role-card p-3 border rounded-3 text-muted opacity-50" title="يتم التعيين من قبل الإدارة فقط">
-                            <div class="role-icon mb-2 fs-3">
-                                <i class="bi bi-gear-fill"></i>
-                            </div>
-                            <div class="fw-bold small">مدير النظام</div>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- البيانات الأساسية -->
@@ -176,6 +167,21 @@
                             <label asp-for="PharmacyPhoneNumber" class="form-label small fw-semibold text-secondary">رقم هاتف الصيدلية</label>
                             <input asp-for="PharmacyPhoneNumber" class="form-control" placeholder="02xxxxxxx أو 01xxxxxxxxx" dir="ltr" style="text-align: right;" />
                             <span asp-validation-for="PharmacyPhoneNumber" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                        <div class="col-12">
+                            <div class="alert alert-info small py-2 mb-0">
+                                <i class="bi bi-info-circle me-1"></i> لن تُعتمد الصيدلية إلا بعد مراجعة الإدارة للأوراق المرفقة.
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label asp-for="PharmacyLicenseFile" class="form-label small fw-semibold text-secondary">رخصة مزاولة المهنة (PDF/صورة)</label>
+                            <input asp-for="PharmacyLicenseFile" class="form-control" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                            <span asp-validation-for="PharmacyLicenseFile" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label asp-for="PharmacyIdentityFile" class="form-label small fw-semibold text-secondary">صورة البطاقة أو السجل التجاري (PDF/صورة)</label>
+                            <input asp-for="PharmacyIdentityFile" class="form-control" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                            <span asp-validation-for="PharmacyIdentityFile" class="text-danger small mt-1 d-block"></span>
                         </div>
                     </div>
                 </div>

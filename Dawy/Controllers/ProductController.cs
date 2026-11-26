@@ -96,11 +96,29 @@ namespace Dawi.Controllers
                 Quantity = model.Quantity,
                 ExpiryDate = DateOnly.FromDateTime(model.ExpiryDate),
                 PharmacyId = model.PharmacyId,
-                Status = ProductStatus.Pending,
+                Status = ProductStatus.AdminPending,
                 CreatedAt = DateTime.UtcNow
             };
 
             _context.Products.Add(product);
+            await _context.SaveChangesAsync();
+
+            var adminIds = await _context.Users
+                .AsNoTracking()
+                .Where(u => u.Role == Roles.Admin && u.IsActive)
+                .Select(u => u.UserId)
+                .ToListAsync();
+            foreach (var adminId in adminIds)
+            {
+                _context.Notifications.Add(new Notification
+                {
+                    UserId = adminId,
+                    Title = "تبرع جديد ينتظر المراجعة الإدارية",
+                    Message = $"تم التبرع بـ '{product.ProductName}'. يرجى المراجعة قبل إحالته للصيدلي.",
+                    Link = "/Admin/Products",
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(MyDonations));

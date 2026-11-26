@@ -1,7 +1,9 @@
 using System.Security.Claims;
 using Dawi.Data;
 using Dawi.Models;
+using Dawi.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,10 +13,12 @@ namespace Dawi.Controllers
     public class PharmacyController : Controller
     {
         private readonly DawiContext _context;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public PharmacyController(DawiContext context)
+        public PharmacyController(DawiContext context, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -140,7 +144,7 @@ namespace Dawi.Controllers
         [HttpPost]
         [Authorize(Roles = Roles.Pharmacist)]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Pharmacy model)
+        public async Task<IActionResult> Create(Pharmacy model, IFormFile? licenseDocument, IFormFile? identityDocument)
         {
             ModelState.Remove(nameof(Pharmacy.Pharmacist));
             ModelState.Remove(nameof(Pharmacy.IsVerified));
@@ -157,8 +161,30 @@ namespace Dawi.Controllers
             if (string.IsNullOrWhiteSpace(model.PhoneNumber))
                 ModelState.AddModelError(nameof(model.PhoneNumber), "رقم الهاتف مطلوب.");
 
+            if (licenseDocument == null || licenseDocument.Length == 0)
+                ModelState.AddModelError("licenseDocument", "يرجى رفع رخصة مزاولة المهنة.");
+
+            if (identityDocument == null || identityDocument.Length == 0)
+                ModelState.AddModelError("identityDocument", "يرجى رفع صورة البطاقة أو السجل التجاري.");
+
             if (!ModelState.IsValid)
                 return View(model);
+
+            var (licenseUrl, licenseError) = await DocumentUploader.SaveAsync(
+                licenseDocument, _webHostEnvironment, "pharmacy-documents", "رخصة الصيدلية");
+            if (licenseError != null)
+            {
+                ModelState.AddModelError("licenseDocument", licenseError);
+                return View(model);
+            }
+
+            var (identityUrl, identityError) = await DocumentUploader.SaveAsync(
+                identityDocument, _webHostEnvironment, "pharmacy-documents", "صورة البطاقة أو السجل التجاري");
+            if (identityError != null)
+            {
+                ModelState.AddModelError("identityDocument", identityError);
+                return View(model);
+            }
 
             var pharmacy = new Pharmacy
             {
@@ -167,7 +193,10 @@ namespace Dawi.Controllers
                 City = model.City.Trim(),
                 PhoneNumber = model.PhoneNumber.Trim(),
                 PharmacistId = CurrentUserId,
-                IsVerified = false
+                IsVerified = false,
+                RegistrationStatus = PharmacyRegistrationStatus.Pending,
+                LicenseDocumentUrl = licenseUrl,
+                IdentityDocumentUrl = identityUrl
             };
 
             _context.Pharmacies.Add(pharmacy);
@@ -184,7 +213,13 @@ namespace Dawi.Controllers
             });
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "تم إرسال بيانات الصيدلية بنجاح وهي الآن قيد المراجعة والتوثيق من الإدارة.";
+            await NotifyAdminsAsync(
+                "صيدلية جديدة بانتظار المراجعة",
+                $"تم تسجيل الصيدلية '{pharmacy.PharmacyName}' ورفع أوراقها. يرجى المراجعة قبل الاعتماد.",
+                "/Admin/Pharmacies");
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "تم إرسال بيانات الصيدلية وأوراقها بنجاح وهي الآن قيد مراجعة الإدارة.";
             return RedirectToAction(nameof(MyPharmacies));
         }
 
@@ -210,7 +245,7 @@ namespace Dawi.Controllers
         [HttpPost]
         [Authorize(Roles = Roles.Pharmacist + "," + Roles.Admin)]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Pharmacy model)
+        public async Task<IActionResult> Edit(int id, Pharmacy model, IFormFile? licenseDocument, IFormFile? identityDocument)
         {
             var pharmacy = await _context.Pharmacies.FindAsync(id);
             if (pharmacy == null)
@@ -233,6 +268,43 @@ namespace Dawi.Controllers
             pharmacy.City = model.City.Trim();
             pharmacy.PhoneNumber = model.PhoneNumber.Trim();
 
+            if (licenseDocument?.Length > 0 || identityDocument?.Length > 0)
+            {
+                if (licenseDocument?.Length > 0)
+                {
+                    var (licenseUrl, licenseError) = await DocumentUploader.SaveAsync(
+                        licenseDocument, _webHostEnvironment, "pharmacy-documents", "رخصة الصيدلية");
+                    if (licenseError != null)
+                    {
+                        ModelState.AddModelError("licenseDocument", licenseError);
+                        return View(model);
+                    }
+                    pharmacy.LicenseDocumentUrl = licenseUrl;
+                }
+
+                if (identityDocument?.Length > 0)
+                {
+                    var (identityUrl, identityError) = await DocumentUploader.SaveAsync(
+                        identityDocument, _webHostEnvironment, "pharmacy-documents", "صورة البطاقة أو السجل التجاري");
+                    if (identityError != null)
+                    {
+                        ModelState.AddModelError("identityDocument", identityError);
+                        return View(model);
+                    }
+                    pharmacy.IdentityDocumentUrl = identityUrl;
+                }
+
+                if (!pharmacy.IsVerified)
+                {
+                    pharmacy.RegistrationStatus = PharmacyRegistrationStatus.Pending;
+                    pharmacy.RegistrationRejectionReason = null;
+                    await NotifyAdminsAsync(
+                        "تحديث أوراق صيدلية",
+                        $"تم تحديث أوراق الصيدلية '{pharmacy.PharmacyName}' وهي بانتظار المراجعة.",
+                        "/Admin/Pharmacies");
+                }
+            }
+
             _context.AuditLogs.Add(new AuditLog
             {
                 UserId = CurrentUserId,
@@ -250,6 +322,28 @@ namespace Dawi.Controllers
                 ? RedirectToAction(nameof(Index))
                 : RedirectToAction(nameof(MyPharmacies));
         }
+
+        private async Task NotifyAdminsAsync(string title, string message, string? link)
+        {
+            var adminIds = await _context.Users
+                .AsNoTracking()
+                .Where(u => u.Role == Roles.Admin && u.IsActive)
+                .Select(u => u.UserId)
+                .ToListAsync();
+
+            foreach (var adminId in adminIds)
+                await NotifyAsync(adminId, title, message, link);
+        }
+
+        private Task NotifyAsync(int userId, string title, string message, string? link) =>
+            _context.Notifications.AddAsync(new Notification
+            {
+                UserId = userId,
+                Title = title,
+                Message = message,
+                Link = link,
+                CreatedAt = DateTime.UtcNow
+            }).AsTask();
     }
 }
 

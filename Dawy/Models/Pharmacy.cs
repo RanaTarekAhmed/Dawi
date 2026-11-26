@@ -9,6 +9,14 @@ namespace Dawi.Models
         public bool IsVerified { get; set; }
         public string City { get; set; } = string.Empty;
 
+        // مراجعة الإدارة لأوراق التقديم قبل الاعتماد
+        public string RegistrationStatus { get; set; } = PharmacyRegistrationStatus.Pending;
+        public string? RegistrationRejectionReason { get; set; }
+        public string? LicenseDocumentUrl { get; set; }
+        public string? IdentityDocumentUrl { get; set; }
+        public DateTime? ReviewedAt { get; set; }
+        public int? ReviewedByAdminId { get; set; }
+
         public int? PharmacistId { get; set; }
         public User? Pharmacist { get; set; }
 

@@ -66,9 +66,15 @@
                                 {
                                     <span class="badge bg-success">معتمدة</span>
                                 }
+                                else if (item.RegistrationStatus == Dawi.Models.PharmacyRegistrationStatus.Rejected)
+                                {
+                                    <span class="badge bg-danger">مرفوضة</span>
+                                    <small class="d-block text-muted mt-1">@item.RegistrationRejectionReason</small>
+                                    <small class="d-block mt-1">حدّث الأوراق من «تعديل» لإعادة المراجعة.</small>
+                                }
                                 else
                                 {
-                                    <span class="badge bg-warning text-dark">بانتظار موافقة الإدارة</span>
+                                    <span class="badge bg-warning text-dark">الأوراق قيد مراجعة الإدارة</span>
                                 }
                             </td>
                             <td>

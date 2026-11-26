@@ -52,9 +52,13 @@
                                 {
                                     <span class="badge-rejected">مرفوض</span>
                                 }
+                                else if (Model.Status == ProductStatus.Pending)
+                                {
+                                    <span class="badge-pending">بانتظار فحص الصيدلية</span>
+                                }
                                 else
                                 {
-                                    <span class="badge-pending">قيد المراجعة</span>
+                                    <span class="badge-pending">بانتظار المراجعة الإدارية</span>
                                 }
                             </td>
                         </tr>
@@ -67,7 +71,7 @@
                         }
                     </table>
 
-                    @if (Model.Status == ProductStatus.Pending && User.IsInRole(Roles.Donor))
+                    @if ((Model.Status == ProductStatus.Pending || Model.Status == ProductStatus.AdminPending) && User.IsInRole(Roles.Donor))
                     {
                         <form asp-action="Cancel" asp-route-id="@Model.ProductId" method="post">
                             @Html.AntiForgeryToken()

@@ -11,7 +11,7 @@
                     <h4 class="mb-0 fw-bold">تعديل بيانات: @Model.PharmacyName</h4>
                 </div>
                 <div class="card-body p-4">
-                    <form asp-action="Edit" asp-route-id="@Model.PharmacyId" method="post">
+                    <form asp-action="Edit" asp-route-id="@Model.PharmacyId" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
                         <input type="hidden" asp-for="PharmacyId" />
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
@@ -28,9 +28,44 @@
                             <label class="form-label fw-bold">العنوان</label>
                             <input asp-for="Address" class="form-control" />
                         </div>
-                        <div class="mb-4">
+                        <div class="mb-3">
                             <label class="form-label fw-bold">رقم الهاتف</label>
                             <input asp-for="PhoneNumber" class="form-control" />
+                        </div>
+
+                        <div class="border rounded-3 p-3 mb-4 bg-light">
+                            <h6 class="fw-bold text-teal mb-2"><i class="bi bi-file-earmark-check"></i> أوراق التقديم</h6>
+                            <div class="small mb-2">
+                                الرخصة:
+                                @if (!string.IsNullOrEmpty(Model.LicenseDocumentUrl))
+                                {
+                                    <a href="@Model.LicenseDocumentUrl" target="_blank" rel="noopener">عرض الملف</a>
+                                }
+                                else { <span class="text-muted">غير مرفقة</span> }
+                            </div>
+                            <div class="small mb-3">
+                                البطاقة/السجل:
+                                @if (!string.IsNullOrEmpty(Model.IdentityDocumentUrl))
+                                {
+                                    <a href="@Model.IdentityDocumentUrl" target="_blank" rel="noopener">عرض الملف</a>
+                                }
+                                else { <span class="text-muted">غير مرفق</span> }
+                            </div>
+                            @if (Model.RegistrationStatus == Dawi.Models.PharmacyRegistrationStatus.Rejected && !string.IsNullOrEmpty(Model.RegistrationRejectionReason))
+                            {
+                                <div class="alert alert-danger small py-2 mb-3">سبب الرفض: @Model.RegistrationRejectionReason</div>
+                            }
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">تحديث الرخصة (اختياري)</label>
+                                    <input name="licenseDocument" type="file" class="form-control form-control-sm" accept=".pdf,.jpg,.jpeg,.png" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">تحديث البطاقة/السجل (اختياري)</label>
+                                    <input name="identityDocument" type="file" class="form-control form-control-sm" accept=".pdf,.jpg,.jpeg,.png" />
+                                </div>
+                            </div>
+                            <div class="form-text">رفع أي ملف جديد يعيد الطلب إلى مراجعة الإدارة.</div>
                         </div>
 
                         <div class="d-flex gap-2">

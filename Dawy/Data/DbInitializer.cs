@@ -48,7 +48,9 @@ namespace Dawi.Data
                     City = "القاهرة",
                     PhoneNumber = "01000000002",
                     PharmacistId = pharmacist.UserId,
-                    IsVerified = true
+                    IsVerified = true,
+                    RegistrationStatus = PharmacyRegistrationStatus.Approved,
+                    ReviewedAt = DateTime.UtcNow
                 };
                 context.Pharmacies.Add(pharmacy);
                 context.SaveChanges();

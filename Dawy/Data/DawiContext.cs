@@ -71,6 +71,11 @@ namespace Dawi.Data
                 entity.Property(p => p.PharmacyName).IsRequired().HasMaxLength(150);
                 entity.Property(p => p.Address).IsRequired().HasMaxLength(300);
                 entity.Property(p => p.PhoneNumber).IsRequired().HasMaxLength(20);
+                entity.Property(p => p.RegistrationStatus).IsRequired().HasMaxLength(30)
+                    .HasDefaultValue(PharmacyRegistrationStatus.Pending);
+                entity.Property(p => p.RegistrationRejectionReason).HasMaxLength(500);
+                entity.Property(p => p.LicenseDocumentUrl).HasMaxLength(500);
+                entity.Property(p => p.IdentityDocumentUrl).HasMaxLength(500);
 
                 // الصيدلي (User) -> صيدلياته
                 entity.HasOne(p => p.Pharmacist)

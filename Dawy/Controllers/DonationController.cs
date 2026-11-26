@@ -47,7 +47,8 @@ namespace Dawi.Controllers
 
             ViewBag.TotalDonations = allUserDonations.Count;
             ViewBag.ApprovedCount = allUserDonations.Count(p => p.Status == ProductStatus.Approved);
-            ViewBag.PendingCount = allUserDonations.Count(p => p.Status == ProductStatus.Pending);
+            ViewBag.PendingCount = allUserDonations.Count(p =>
+                p.Status == ProductStatus.AdminPending || p.Status == ProductStatus.Pending);
             ViewBag.RejectedCount = allUserDonations.Count(p => p.Status == ProductStatus.Rejected);
 
             var filteredDonations = string.IsNullOrWhiteSpace(status)
@@ -163,7 +164,7 @@ namespace Dawi.Controllers
                 ExpiryDate = DateOnly.FromDateTime(model.ExpiryDate),
                 ProductImageUrl = imageUrl,
                 PharmacyId = model.PharmacyId,
-                Status = ProductStatus.Pending,
+                Status = ProductStatus.AdminPending,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -172,18 +173,14 @@ namespace Dawi.Controllers
 
             await WriteAuditAsync("DonationCreated", nameof(Product), product.ProductId, $"Product: {product.ProductName}, Qty: {product.Quantity}");
 
-            if (pharmacy!.PharmacistId.HasValue)
-            {
-                await NotifyAsync(
-                    pharmacy.PharmacistId.Value,
-                    "تبرع جديد قيد المراجعة",
-                    $"تم إرسال تبرع جديد ({product.ProductName}) للمراجعة في صيدليتك.",
-                    "/Inspection");
-            }
+            await NotifyAdminsAsync(
+                "تبرع جديد ينتظر المراجعة الإدارية",
+                $"تم التبرع بـ '{product.ProductName}' (الكمية: {product.Quantity}) لصالح صيدلية {pharmacy!.PharmacyName}. يرجى المراجعة قبل إحالته للصيدلي.",
+                "/Admin/Products");
 
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "تم إرسال تبرعك بنجاح وهو الآن قيد المراجعة لدى الصيدلية.";
+            TempData["SuccessMessage"] = "تم إرسال تبرعك بنجاح وهو الآن قيد المراجعة الإدارية، ثم سيُحال للصيدلية لفحصه.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -199,9 +196,9 @@ namespace Dawi.Controllers
             if (product == null)
                 return NotFound();
 
-            if (product.Status != ProductStatus.Pending)
+            if (product.Status != ProductStatus.Pending && product.Status != ProductStatus.AdminPending)
             {
-                TempData["ErrorMessage"] = "لا يمكن إلغاء التبرع بعد مراجعته من الصيدلية.";
+                TempData["ErrorMessage"] = "لا يمكن إلغاء التبرع بعد مراجعته.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -223,6 +220,18 @@ namespace Dawi.Controllers
 
             ViewBag.Pharmacies = new SelectList(verifiedPharmacies, "PharmacyId", "PharmacyName", selectedPharmacyId);
             ViewBag.Categories = new List<string> { "أدوية", "مستلزمات طبية", "فيتامينات", "أجهزة طبية" };
+        }
+
+        private async Task NotifyAdminsAsync(string title, string message, string? link)
+        {
+            var adminIds = await _context.Users
+                .AsNoTracking()
+                .Where(u => u.Role == Roles.Admin && u.IsActive)
+                .Select(u => u.UserId)
+                .ToListAsync();
+
+            foreach (var adminId in adminIds)
+                await NotifyAsync(adminId, title, message, link);
         }
 
         private Task NotifyAsync(int userId, string title, string message, string? link) =>
