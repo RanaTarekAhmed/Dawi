@@ -46,16 +46,7 @@ Large quantities of valid, unused medicines are wasted in households every day, 
 
 ---
 
-## 🗄️ Database Schema (6 Core Tables)
 
-1. **`Users`** — Accounts, hashed passwords, roles, unique 14-digit `NationalId`, and `IsActive` status.
-2. **`Pharmacies`** — Partner pharmacy profiles, verification flag (`IsVerified`), and pharmacist ownership.
-3. **`Products`** — Donated medicines/supplies, quantity, `DateOnly` expiry date, status, image URL, and rejection reason.
-4. **`Requests`** — Beneficiary requests, prescription image URL, requested quantity (`CHECK > 0`), status, scheduled `CollectionDate`, `FeeAmount`, `IsPaid`, and `CollectedAt`.
-5. **`Notifications`** — Per-user notifications with read tracking (`IsRead`) and deep links.
-6. **`AuditLogs`** — Immutable audit trail of user/admin actions, target entities, and timestamps.
-
----
 
 ## 📁 Project Structure
 
@@ -98,13 +89,13 @@ Dawy/
 
 ## 🏢 Organization, Supervision & Team
 
-- **Organization:** YAT
+- **Organization:** YAT Learning center
 - **Instructor:** Eng. Ayed Ali
 
 ### Team Members
-- Keroles
-- Rana
-- Abdelrahman
-- Rahma
-- Youssef
-- Rodyna
+- Keroles Aziz
+- Rana Tarek
+- Abdelrahman Hamed
+- Rahma Eprahim
+- Youssef Mohamed 
+- Rodyna Essam
